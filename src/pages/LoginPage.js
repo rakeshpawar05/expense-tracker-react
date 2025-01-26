@@ -20,33 +20,15 @@ const LoginPage = () => {
     });
 
     const handleSubmit = async (values) => {
-        // Mock authentication - store a fake JWT token
-        console.log(typeof (values))
-        console.log(JSON.stringify(values))
-        console.log("login called " + values.password + " " + values.userName);
-        // const response = await login(JSON.stringify(values))
+
         await login(JSON.stringify(values))
             .then((response) => {
-                console.log("Login successful:", response.data); // Handle successful login
-                //   setToken(response.data.token); // Example: Save the token
-                // localStorage.setItem("jwtToken", response.data);
-                // setIsLoggedIn(true)
+                // console.log("Login successful:", response.data); // Handle successful login
                 doLogin(response.data, "rakesh")
-
             })
             .catch((error) => {
                 console.error("Login failed:", error.response?.data || error.message);
-                //   setError("Invalid username or password");
-            });
-        // console.log(response);
-
-        console.log("local " + localStorage.getItem("jwtToken"))
-        console.log("logged "+ isLogged)
-        // const amount = getAmount(1);
-        await getAmount(1).then((response) => {
-            console.log("amount " + response.data)
-        })
-        // console.log("amount "+ amount.data)
+            });;
         navigate("/dashboard");
     };
 

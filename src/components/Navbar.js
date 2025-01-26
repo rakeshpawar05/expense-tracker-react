@@ -10,7 +10,7 @@ const Navbar = () => {
 
     const handleOnClick = (e) => {
         logout()
-        console.log("handlechange")
+        // console.log("handlechange")
         navigate("/");
     }
 
@@ -50,9 +50,9 @@ const Navbar = () => {
             </li>
             {isLogged ? (<li className="nav-item">
               {/* <Link className="nav-link" to="/categories"> */}
-                <button onClick={() => handleOnClick()}>logout</button>
+                <button className="nav-link" onClick={() => handleOnClick()}>logout</button>
               {/* </Link> */}
-            </li>) : <div>hey</div> }
+            </li>) : <div></div> }
 
           </ul>
         </div>
