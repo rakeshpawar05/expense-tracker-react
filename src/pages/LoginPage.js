@@ -19,6 +19,10 @@ const LoginPage = () => {
         password: Yup.string().min(6, "Minimum 6 characters").required("Required"),
     });
 
+    const onClickRegister = () => {
+        navigate('/register')
+    }
+
     const handleSubmit = async (values) => {
 
         await login(JSON.stringify(values))
@@ -83,6 +87,10 @@ const LoginPage = () => {
                         </Form>
                     )}
                 </Formik>
+                <div className="card p-4 w-50">
+                    <div className="text-center">Register here...</div>
+                    <button className="btn btn-success" onClick={() => onClickRegister()}>Register</button>
+                </div>
             </div>
         </div>
     );

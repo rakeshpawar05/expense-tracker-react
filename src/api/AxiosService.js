@@ -11,3 +11,5 @@ import axiosInstance from "./Axios";
 export const login = async (AuthRequest) => await axiosInstance.post("/auth/login", AuthRequest);
 
 export const getAmount = async (monthId) => await axiosInstance.get(`/months/${monthId}/amount`)
+
+export const registerApi = async (UserDetails) => await axiosInstance.post(`/auth/register`, UserDetails)

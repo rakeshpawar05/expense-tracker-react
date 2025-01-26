@@ -5,7 +5,7 @@ import LoginPage from "../pages/LoginPage";
 import DashboardPage from "../pages/DashboardPage";
 import ExpensesPage from "../pages/ExpensePage";
 import ProtectedRoute from "./ProtectedRoutes";
-import CategoryPage from "../pages/CategoryPage";
+import Register from "../pages/RegisterPage";
 
 const AppRoutes = () => {
     return (
@@ -13,6 +13,7 @@ const AppRoutes = () => {
             <Navbar />
             <Routes>
                 <Route path="/" element={<LoginPage />} />
+                <Route path="/register" element={<Register />} />
                 <Route
                     path="/dashboard"
                     element={
