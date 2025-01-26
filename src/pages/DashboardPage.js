@@ -8,12 +8,10 @@ const DashboardPage = () => {
 
   useEffect(() => {
     const userId = 1; // Replace with the logged-in user's ID
-    // const currentMonth = new Date().toISOString().slice(0, 7); // e.g., "2025-01"
 
     const fetchAmount = async () => {
       try {
         await getAmount(1).then((response) => {
-          console.log("amount " + response.data)
           setAmount(response.data);
         })
       } catch (error) {
