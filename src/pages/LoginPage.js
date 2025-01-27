@@ -1,12 +1,12 @@
-import React from "react";
+import React , {useEffect}from "react";
 import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { login, getAmount } from "../api/AxiosService";
+// import { login, getAmount } from "../api/AxiosService";
 import { useAuth } from "../Auth/AuthContext";
 
 const LoginPage = () => {
-    const { isLogged, doLogin } = useAuth();
+    const { isLogged, doLogin, userDetails } = useAuth();
     const navigate = useNavigate();
 
     const initialValues = {
@@ -24,17 +24,24 @@ const LoginPage = () => {
     }
 
     const handleSubmit = async (values) => {
-
-        await login(JSON.stringify(values))
-            .then((response) => {
-                // console.log("Login successful:", response.data); // Handle successful login
-                doLogin(response.data, "rakesh")
-            })
-            .catch((error) => {
-                console.error("Login failed:", error.response?.data || error.message);
-            });;
+        await doLogin(values)
+        // await login(JSON.stringify(values))
+        //     .then((response) => {
+        //         // console.log("Login successful:", response.data); // Handle successful login
+        //         doLogin(response.data, "rakesh")
+        //     })
+        //     .catch((error) => {
+        //         console.error("Login failed:", error.response?.data || error.message);
+        //     });;
+        console.log("login page user details " + userDetails.name)
         navigate("/dashboard");
     };
+
+    useEffect(() => {
+
+        console.log("login page Changed user details : ", userDetails)
+
+    }, [userDetails])
 
     return (
         <div className="container d-flex justify-content-center align-items-center vh-100">

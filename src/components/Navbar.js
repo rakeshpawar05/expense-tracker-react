@@ -1,12 +1,21 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../Auth/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
 
-    const {isLogged, logout} = useAuth();
+    const {isLogged, logout, userDetails} = useAuth();
     const navigate = useNavigate();
+    // const [isLogged, setIsLogged] = useState(false);
+
+    useEffect(() => {
+      if(!localStorage.getItem("jwtToken")){
+        // setIsLogged(false)
+        console.log("changing loggin status to " + isLogged)
+      }
+
+    }, [isLogged])
 
     const handleOnClick = (e) => {
         logout()

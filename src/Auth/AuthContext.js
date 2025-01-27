@@ -1,4 +1,6 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import { loginApi } from "../api/AxiosService";
+// import { useNavigate } from "react-router-dom";
 
 const AuthContext = React.createContext();
 
@@ -8,12 +10,50 @@ export function useAuth() {
 
 export function AuthProvider({ children }) {
 
-    const doLogin = (token) => {
+    // const navigate = useNavigate();
+
+    const [userDetails, setUserDetails] = useState({
+        "userId": 0,
+        "name": "",
+        "token": ""
+    })
+
+    const [currentMonth, setCurrentMonth] = useState('');
+
+    const doLogin = async (values) => {
+        await loginApi(JSON.stringify(values))
+            .then((response) => {
+                console.log("Login successful:", response.data); // Handle successful login
+                // doLogin(response.data, "rakesh")
+                setUserDetails((userDetails) => ({
+                    ...userDetails, ["userId"]: response.data.userId,
+                    ["name"]: response.data.name, ["token"]: response.data.token
+                }))
+                localStorage.setItem("jwtToken", response.data.token);
+            })
+            .catch((error) => {
+                console.error("Login failed:", error.response?.data || error.message);
+            });;
         console.log("user logged in sccessful")
-        localStorage.setItem("jwtToken", token);
+        console.log("user details " + userDetails);
+
+        // navigate("/dashboard");
     }
+
+    useEffect(() => {
+
+        console.log("Changed user details : ", userDetails)
+
+    }, [userDetails])
+
     const logout = () => {
         console.log("user logged out successful")
+        setUserDetails((userDetails) => ({
+            ...userDetails,
+            "userId": 0,
+            "name": "",
+            "token": ""
+        }))
         localStorage.removeItem("jwtToken")
     }
 
@@ -22,7 +62,10 @@ export function AuthProvider({ children }) {
     const value = {
         isLogged,
         doLogin,
-        logout
+        logout,
+        userDetails,
+        currentMonth,
+        setCurrentMonth
     }
 
     return (
