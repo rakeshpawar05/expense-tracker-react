@@ -19,3 +19,7 @@ export const getMonthNamesApi = async (userId) => await axiosInstance.get(`/mont
 export const getMonthByName = async(monthName) => await axiosInstance.get(`/months/name`, {params:{monthName: monthName}})
 
 export const getTop5Expenses = async(monthName) => await axiosInstance.get(`/expenses/top5`, {params:{monthName: monthName}})
+
+export const createMonthApi = async(month) => await axiosInstance.post("/months", month);
+
+export const createExpenseApi = async(expense) => await axiosInstance.post("/expenses", expense);
