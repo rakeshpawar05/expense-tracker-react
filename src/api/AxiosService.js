@@ -27,3 +27,5 @@ export const createExpenseApi = async(expense) => await axiosInstance.post("/exp
 export const getExpenseApi = async(params) => await axiosInstance.get("/expenses", {params: params})
 
 export const updateExpenseApi = async(id, expense) => await axiosInstance.put(`/expenses/${id}`, expense)
+
+export const deleteExpenseApi = async (id) => await axiosInstance.delete(`/expenses/${id}`);

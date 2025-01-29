@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Formik, Form, Field } from "formik";
 import { useAuth } from "../../Auth/AuthContext";
-import { getExpenseApi, updateExpenseApi } from "../../api/AxiosService";
+import { getExpenseApi, updateExpenseApi, deleteExpenseApi } from "../../api/AxiosService";
 
 const ExpenseList = () => {
     const {currentMonth} = useAuth();
@@ -60,9 +60,21 @@ const ExpenseList = () => {
           }
     }
 
-    const onDelete = (values) => {
-        console.log("on delete " + values);
+    const onDelete = async (id) => {
+        console.log("on delete " + id);
+        try {
+
+            await deleteExpenseApi(id).then((response) => {
+              console.log("after delete response " + response.data)
+            //   setExpenses(response.data);
+            // fetchExpenses()
+            setExpenses(prevExpenses => prevExpenses.filter(exp => exp.id !== id));
+            })
+          } catch (error) {
+            console.error("Failed to delete ", error);
+          }
     }
+
 
     return (
         <div className="container mt-3">
