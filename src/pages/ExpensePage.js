@@ -1,5 +1,6 @@
 import React from "react";
 import AddExpense from "../components/expense/AddExpense";
+import ExpenseList from "../components/expense/ExpenseList";
 
 const ExpensesPage = () => {
   return (
@@ -7,7 +8,9 @@ const ExpensesPage = () => {
       <h1>Expenses</h1>
       <p>Track your expenses here!</p>
 
-      <AddExpense/>
+      <AddExpense />
+      <br />
+      <ExpenseList />
     </div>
   );
 };

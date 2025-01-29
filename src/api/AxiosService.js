@@ -23,3 +23,7 @@ export const getTop5Expenses = async(monthName) => await axiosInstance.get(`/exp
 export const createMonthApi = async(month) => await axiosInstance.post("/months", month);
 
 export const createExpenseApi = async(expense) => await axiosInstance.post("/expenses", expense);
+
+export const getExpenseApi = async(params) => await axiosInstance.get("/expenses", {params: params})
+
+export const updateExpenseApi = async(id, expense) => await axiosInstance.put(`/expenses/${id}`, expense)
