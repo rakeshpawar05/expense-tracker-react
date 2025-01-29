@@ -1,13 +1,14 @@
-import React , {useEffect}from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-// import { login, getAmount } from "../api/AxiosService";
 import { useAuth } from "../Auth/AuthContext";
 
 const LoginPage = () => {
     const { isLogged, doLogin, userDetails } = useAuth();
     const navigate = useNavigate();
+    
+    const [loginError, setLoginError] = useState(null); // State to hold error message
 
     const initialValues = {
         userName: "",
@@ -20,39 +21,40 @@ const LoginPage = () => {
     });
 
     const onClickRegister = () => {
-        navigate('/register')
+        navigate('/register');
     }
 
     const handleSubmit = async (values) => {
-        await doLogin(values)
-        // await login(JSON.stringify(values))
-        //     .then((response) => {
-        //         // console.log("Login successful:", response.data); // Handle successful login
-        //         doLogin(response.data, "rakesh")
-        //     })
-        //     .catch((error) => {
-        //         console.error("Login failed:", error.response?.data || error.message);
-        //     });;
-        console.log("login page user details " + userDetails.name)
-        navigate("/dashboard");
+        setLoginError(null); // Reset any previous errors
+
+        try {
+            await doLogin(values); // Try login
+            navigate("/dashboard"); // Redirect on success
+        } catch (error) {
+            // If login fails, set the error message
+            setLoginError(error.message);
+        }
     };
 
     useEffect(() => {
-
-        console.log("login page Changed user details : ", userDetails)
-
-    }, [userDetails])
+        console.log("login page Changed user details : ", userDetails);
+    }, [userDetails]);
 
     return (
         <div className="container d-flex justify-content-center align-items-center vh-100">
-            <div className="card p-4 w-50">
-                <h2 className="text-center">Login</h2>
+            <div className="card p-4 w-100" style={{ maxWidth: "500px" }}>
+                <h2 className="text-center mb-4">Login</h2>
+                {loginError && (
+                    <div className="alert alert-danger text-center" role="alert">
+                        {loginError}
+                    </div>
+                )}
                 <Formik
                     initialValues={initialValues}
                     validationSchema={validationSchema}
                     onSubmit={handleSubmit}
                 >
-                    {(values) => (
+                    {({ values }) => (
                         <Form>
                             <div className="mb-3">
                                 <label htmlFor="userName" className="form-label">
@@ -63,12 +65,13 @@ const LoginPage = () => {
                                     id="userName"
                                     name="userName"
                                     className="form-control"
+                                    placeholder="Enter your email"
                                     value={values.userName}
                                 />
                                 <ErrorMessage
                                     name="userName"
                                     component="div"
-                                    className="text-danger"
+                                    className="text-danger mt-2"
                                 />
                             </div>
                             <div className="mb-3">
@@ -80,23 +83,24 @@ const LoginPage = () => {
                                     id="password"
                                     name="password"
                                     className="form-control"
+                                    placeholder="Enter your password"
                                     value={values.password}
                                 />
                                 <ErrorMessage
                                     name="password"
                                     component="div"
-                                    className="text-danger"
+                                    className="text-danger mt-2"
                                 />
                             </div>
-                            <button type="submit" className="btn btn-primary w-100">
+                            <button type="submit" className="btn btn-primary w-100 mt-3">
                                 Login
                             </button>
                         </Form>
                     )}
                 </Formik>
-                <div className="card p-4 w-50">
-                    <div className="text-center">Register here...</div>
-                    <button className="btn btn-success" onClick={() => onClickRegister()}>Register</button>
+                <div className="mt-3 text-center">
+                    <div>Don't have an account?</div>
+                    <button className="btn btn-link p-0" onClick={() => onClickRegister()}>Register here</button>
                 </div>
             </div>
         </div>

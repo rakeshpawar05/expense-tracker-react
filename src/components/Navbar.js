@@ -5,23 +5,19 @@ import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
 
-    const {isLogged, logout, userDetails} = useAuth();
-    const navigate = useNavigate();
-    // const [isLogged, setIsLogged] = useState(false);
+  const { isLogged, logout, userDetails } = useAuth();
+  const navigate = useNavigate();
 
-    useEffect(() => {
-      if(!localStorage.getItem("jwtToken")){
-        // setIsLogged(false)
-        console.log("changing loggin status to " + isLogged)
-      }
-
-    }, [isLogged])
-
-    const handleOnClick = (e) => {
-        logout()
-        // console.log("handlechange")
-        navigate("/");
+  useEffect(() => {
+    if (!localStorage.getItem("jwtToken")) {
+      console.log("changing login status to " + isLogged);
     }
+  }, [isLogged]);
+
+  const handleOnClick = () => {
+    logout();
+    navigate("/");
+  };
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -41,7 +37,7 @@ const Navbar = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav">
+          <ul className="navbar-nav ms-auto">
             <li className="nav-item">
               <Link className="nav-link" to="/dashboard">
                 Dashboard
@@ -62,12 +58,13 @@ const Navbar = () => {
                 Categories
               </Link>
             </li>
-            {isLogged ? (<li className="nav-item">
-              {/* <Link className="nav-link" to="/categories"> */}
-                <button className="nav-link" onClick={() => handleOnClick()}>logout</button>
-              {/* </Link> */}
-            </li>) : <div></div> }
-
+            {isLogged ? (
+              <li className="nav-item">
+                <button className="nav-link" onClick={handleOnClick}>
+                  Logout
+                </button>
+              </li>
+            ) : null}
           </ul>
         </div>
       </div>

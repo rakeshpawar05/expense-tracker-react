@@ -16,7 +16,7 @@ const Register = () => {
 
     const handleSubmit = async (values, { setSubmitting, setErrors }) => {
         try {
-            console.log(values)
+            console.log(values);
             await registerApi(values); // Call register API
             navigate("/"); // Redirect to login after success
         } catch (error) {
@@ -27,37 +27,62 @@ const Register = () => {
     };
 
     return (
-        <div className="container mt-5">
-            <h2>Register</h2>
-            <Formik
-                initialValues={{ name: "", email: "", password: "" }}
-                validationSchema={validationSchema}
-                onSubmit={handleSubmit}
-            >
-                {({ isSubmitting, errors }) => (
-                    <Form>
-                        {errors.general && <div className="alert alert-danger">{errors.general}</div>}
-                        <div className="form-group">
-                            <label htmlFor="name">Username</label>
-                            <Field name="name" type="text" id="name" className="form-control" />
-                            <ErrorMessage name="name" component="div" className="text-danger" />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="email">Email</label>
-                            <Field name="email" type="email" id="email" className="form-control" />
-                            <ErrorMessage name="email" component="div" className="text-danger" />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="password">Password</label>
-                            <Field name="password" type="password" id="password" className="form-control" />
-                            <ErrorMessage name="password" component="div" className="text-danger" />
-                        </div>
-                        <button type="submit" className="btn btn-primary mt-3" disabled={isSubmitting}>
-                            {isSubmitting ? "Registering..." : "Register"}
-                        </button>
-                    </Form>
-                )}
-            </Formik>
+        <div className="container d-flex justify-content-center align-items-center vh-100">
+            <div className="card p-4 w-100" style={{ maxWidth: "500px" }}>
+                <h2 className="text-center">Register</h2>
+                <Formik
+                    initialValues={{ name: "", email: "", password: "" }}
+                    validationSchema={validationSchema}
+                    onSubmit={handleSubmit}
+                >
+                    {({ isSubmitting, errors }) => (
+                        <Form>
+                            {errors.general && <div className="alert alert-danger">{errors.general}</div>}
+                            <div className="mb-3">
+                                <label htmlFor="name" className="form-label">Username</label>
+                                <Field
+                                    name="name"
+                                    type="text"
+                                    id="name"
+                                    className="form-control"
+                                />
+                                <ErrorMessage name="name" component="div" className="text-danger" />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="email" className="form-label">Email</label>
+                                <Field
+                                    name="email"
+                                    type="email"
+                                    id="email"
+                                    className="form-control"
+                                />
+                                <ErrorMessage name="email" component="div" className="text-danger" />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="password" className="form-label">Password</label>
+                                <Field
+                                    name="password"
+                                    type="password"
+                                    id="password"
+                                    className="form-control"
+                                />
+                                <ErrorMessage name="password" component="div" className="text-danger" />
+                            </div>
+                            <button
+                                type="submit"
+                                className="btn btn-primary w-100"
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? "Registering..." : "Register"}
+                            </button>
+                        </Form>
+                    )}
+                </Formik>
+                <div className="mt-3 text-center">
+                    <p>Already have an account?</p>
+                    <button className="btn btn-link" onClick={() => navigate("/")}>Login</button>
+                </div>
+            </div>
         </div>
     );
 };

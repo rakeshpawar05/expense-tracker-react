@@ -21,24 +21,46 @@ export function AuthProvider({ children }) {
     const [currentMonth, setCurrentMonth] = useState('');
 
     const doLogin = async (values) => {
-        await loginApi(JSON.stringify(values))
-            .then((response) => {
-                console.log("Login successful:", response.data); // Handle successful login
-                // doLogin(response.data, "rakesh")
-                setUserDetails((userDetails) => ({
-                    ...userDetails, ["userId"]: response.data.userId,
-                    ["name"]: response.data.name, ["token"]: response.data.token
-                }))
-                localStorage.setItem("jwtToken", response.data.token);
-            })
-            .catch((error) => {
-                console.error("Login failed:", error.response?.data || error.message);
-            });;
-        console.log("user logged in sccessful")
-        console.log("user details " + userDetails);
+        try {
+            const response = await loginApi(JSON.stringify(values));
+    
+            // If login is successful, set user details and store the token
+            console.log("Login successful:", response.data);
+            setUserDetails((userDetails) => ({
+                ...userDetails,
+                userId: response.data.userId,
+                name: response.data.name,
+                token: response.data.token,
+            }));
+    
+            localStorage.setItem("jwtToken", response.data.token);
+        } catch (error) {
+            // If login fails, throw an error with the message
+            console.error("Login failed:", error.response?.data || error.message);
+            throw new Error(error.response?.data?.message || "Bad credentials...Try Again!!!"); // Throwing error to be caught in the LoginPage
+        }
+    };
+    
 
-        // navigate("/dashboard");
-    }
+    // const doLogin = async (values) => {
+    //     await loginApi(JSON.stringify(values))
+    //         .then((response) => {
+    //             console.log("Login successful:", response.data); // Handle successful login
+    //             // doLogin(response.data, "rakesh")
+    //             setUserDetails((userDetails) => ({
+    //                 ...userDetails, ["userId"]: response.data.userId,
+    //                 ["name"]: response.data.name, ["token"]: response.data.token
+    //             }))
+    //             localStorage.setItem("jwtToken", response.data.token);
+    //         })
+    //         .catch((error) => {
+    //             console.error("Login failed:", error.response?.data || error.message);
+    //         });;
+    //     console.log("user logged in sccessful")
+    //     console.log("user details " + userDetails);
+
+    //     // navigate("/dashboard");
+    // }
 
     useEffect(() => {
 
