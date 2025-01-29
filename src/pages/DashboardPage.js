@@ -174,16 +174,13 @@ const DashboardPage = () => {
       <TopFiveExpenses />
 
       {/* Add New Month Section */}
-      <div className="mb-4">
+      {/* <div className="mb-4">
         <h4>Add New Month</h4>
         <Formik
           initialValues={{ month: "", year: "", earning: 0 }}
           onSubmit={handleAddMonth}
         >
           <Form className="d-flex">
-            {/* <Field name="month" className="form-control me-2" placeholder="Enter Month (e.g., January 2025)" /> */}
-            {/* <Field name="month" className="form-control me-2" placeholder="Enter Month (e.g., January 2025)" /> */}
-
             <label htmlFor="month" className="form-label">
               Select Month
             </label>
@@ -226,10 +223,10 @@ const DashboardPage = () => {
             <button type="submit" className="btn btn-primary">Add Month</button>
           </Form>
         </Formik>
-      </div>
+      </div> */}
 
       {/* Add Expense Section */}
-      <div className="mb-4">
+      {/* <div className="mb-4">
         <h4>Add Expense</h4>
         <Formik
           initialValues={{}}
@@ -259,7 +256,7 @@ const DashboardPage = () => {
             </div>
           </Form>
         </Formik>
-      </div>
+      </div> */}
 
       {/* Expense List Section */}
       {/* <div>

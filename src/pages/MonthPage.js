@@ -1,5 +1,6 @@
 import React from "react";
 import AddMonth from "../components/month/AddMonth";
+import MonthList from "../components/month/MonthList";
 
 const MonthsPage = () => {
     return (
@@ -8,6 +9,8 @@ const MonthsPage = () => {
             <p>Track your months here!</p>
 
             <AddMonth />
+            <br />
+            <MonthList />
         </div>
     );
 };

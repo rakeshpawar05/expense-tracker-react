@@ -1,12 +1,32 @@
-import React from "react";
-import { createExpenseApi } from "../../api/AxiosService";
+import React, { useState, useEffect } from "react";
+import { createExpenseApi, getCategoriesApi } from "../../api/AxiosService";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useAuth } from "../../Auth/AuthContext";
 
 const AddExpense = () => {
 
+    // const {currentMonth} = useAuth();
+    const { currentMonth } = useAuth();
+
     const monthList = ["January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"];
+
+    const [categories, setCategories] = useState([]);
+
+    useEffect(() => {
+        fetchCategories();
+    }, [currentMonth]);
+
+    const fetchCategories = async () => {
+        try {
+            await getCategoriesApi(currentMonth).then((response) => {
+                console.log("categories " + JSON.stringify(response.data))
+                setCategories(response.data);
+            })
+        } catch (error) {
+            console.error("Failed to categories ", error);
+        }
+    }
 
 
     // Function to add an expense
@@ -25,7 +45,8 @@ const AddExpense = () => {
                 description: values.name,
                 amount: values.amount,
                 date: values.date.toString(),
-                monthName: expenseMonthName
+                monthName: expenseMonthName,
+                categoryName: values.categoryName
             }
 
             console.log("values " + JSON.stringify(expense))
@@ -62,13 +83,38 @@ const AddExpense = () => {
                             <Field name="name" className="form-control" placeholder="Expense Description" />
                         </div>
                         <div className="col-md-2">
-                            <Field name="category" as="select" className="form-control">
-                                <option value="">Select Category</option>
-                                <option value="Food">Food</option>
-                                <option value="Travel">Travel</option>
-                                <option value="Utilities">Utilities</option>
-                                <option value="Other">Other</option>
-                            </Field>
+                            {/* <Field
+                                as="select"
+                                // id="year"
+                                name="categoryName"
+                                className="form-control"
+                            >
+                                <option value="">-- Select a category --</option>
+                                {categories.length > 0 ??(
+                                categories.map((category, index) => (
+                                    <option key={index} value={category.name}>
+                                        {category.name}
+                                    </option>
+                                )))}
+                            </Field> */}
+
+                            {categories.length > 0 ? (
+                                <Field as="select" name="categoryName" className="form-control">
+                                    <option value="">-- Select a category --</option>
+                                    {categories.map((category, index) => (
+                                        <option key={index} value={category.name}>
+                                            {category.name}
+                                        </option>
+                                    ))}
+                                </Field>
+                            ) : (
+                                <Field
+                                    type="text"
+                                    name="categoryName"
+                                    className="form-control"
+                                    placeholder="Enter category"
+                                />
+                            )}
                         </div>
                         <div className="col-md-2">
                             <Field name="amount" type="number" className="form-control" placeholder="Amount" />

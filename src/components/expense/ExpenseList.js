@@ -16,7 +16,7 @@ const ExpenseList = () => {
             "monthName": currentMonth
         }
         await getExpenseApi(params).then((response) => {
-          console.log("expenses " + response.data)
+          console.log("expenses " + JSON.stringify(response.data))
           setExpenses(response.data);
         })
       } catch (error) {
@@ -32,9 +32,9 @@ const ExpenseList = () => {
     const onUpdate = (id, values) => {
         console.log("id for update " + id);
         console.log("on update " + JSON.stringify(values));
-        console.log("on update " + expenses[0].amount);
-        expenses[0].amount = values.amount;
-        expenses[0].description = values.description;
+        // console.log("on update " + expenses[0].amount);
+        // expenses[0].amount = values.amount;
+        // expenses[0].description = values.description;
 
         expenses.forEach((expense) => {
             if(expense.id === id) {
@@ -79,7 +79,7 @@ const ExpenseList = () => {
     return (
         <div className="container mt-3">
           <h3 className="text-center">Expenses</h3>
-          <table className="table table-striped table-bordered">
+          <table className="table table-striped ">
             <thead className="thead-dark">
               <tr>
                 <th>Date</th>

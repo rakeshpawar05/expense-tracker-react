@@ -46,50 +46,55 @@ const AddMonth = () => {
                     initialValues={{ month: "", year: "", earning: 0 }}
                     onSubmit={handleAddMonth}
                 >
-                    <Form className="d-flex">
+                    <Form className="row g-3">
                         {/* <Field name="month" className="form-control me-2" placeholder="Enter Month (e.g., January 2025)" /> */}
                         {/* <Field name="month" className="form-control me-2" placeholder="Enter Month (e.g., January 2025)" /> */}
 
-                        <label htmlFor="month" className=" form-label flex-fill">
+                        {/* <label htmlFor="month" className=" form-label flex-fill">
                             Select Month
-                        </label>
-                        <Field
-                            as="select"
-                            id="month"
-                            name="month"
-                            className=" form-control flex-fill"
-                        >
-                            <option value="">-- Select a month --</option>
-                            {monthList.map((month, index) => (
-                                <option key={index} value={month}>
-                                    {month}
-                                </option>
-                            ))}
-                        </Field>
-
-                        <label htmlFor="year" className="form- label flex-fill">
+                        </label> */}
+                        <div className="col-md-3">
+                            <Field
+                                as="select"
+                                // id="month"
+                                name="month"
+                                className=" form-control"
+                            >
+                                <option value="">-- Select a month --</option>
+                                {monthList.map((month, index) => (
+                                    <option key={index} value={month}>
+                                        {month}
+                                    </option>
+                                ))}
+                            </Field>
+                        </div>
+                        {/* <label htmlFor="year" className="form- label flex-fill">
                             Select Year
-                        </label>
-                        <Field
-                            as="select"
-                            id="year"
-                            name="year"
-                            className="form-control flex-fill"
-                        >
-                            <option value="">-- Select a year --</option>
-                            {yearList.map((year, index) => (
-                                <option key={index} value={year}>
-                                    {year}
-                                </option>
-                            ))}
-                        </Field>
-
-                        <label htmlFor="earning" className="form-label flex-fill">
+                        </label> */}
+                        <div className="col-md-3">
+                            <Field
+                                as="select"
+                                // id="year"
+                                name="year"
+                                className="form-control"
+                            >
+                                <option value="">-- Select a year --</option>
+                                {yearList.map((year, index) => (
+                                    <option key={index} value={year}>
+                                        {year}
+                                    </option>
+                                ))}
+                            </Field>
+                        </div>
+                        <div className="col-md-3">
+                            {/* <label htmlFor="earning" className="form-label flex-fill">
                             Add Earnings
-                        </label>
-                        <Field name="earning" id="earning" className="form-control flex-fill me-2" placeholder="Enter amount" />
-
-                        <button type="submit" className="btn btn-primary">Add Month</button>
+                        </label> */}
+                            <Field name="earning" className="form-control" placeholder="Enter amount" />
+                        </div>
+                        <div className="col-md-3">
+                            <button type="submit" className="btn btn-primary w-100">Add Month</button>
+                        </div>
                     </Form>
                 </Formik>
             </div>
