@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import { createExpenseApi, getCategoriesApi } from "../../api/AxiosService";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useAuth } from "../../Auth/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const AddExpense = () => {
 
     // const {currentMonth} = useAuth();
-    const { currentMonth } = useAuth();
+    const { currentMonth, setCurrentMonth } = useAuth();
+    const navigate = useNavigate();
 
     const monthList = ["January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"];
@@ -62,12 +64,21 @@ const AddExpense = () => {
             })
 
             resetForm();
+            // const goToExpenses = (month) => {
+            // setCurrentMonth(expenseMonthName);
+            // navigate(`/expenses`);
+            // };
+            goToExpenses(expenseMonthName);
         } catch (error) {
             console.error("Failed to add expense:", error);
             alert("Failed to add expense. Please try again.");
         }
     };
 
+                const goToExpenses = (expenseMonthName) => {
+                    setCurrentMonth(expenseMonthName);
+                    navigate(`/expenses`);
+                    };
     return (
         <div className="container mt-4">
 

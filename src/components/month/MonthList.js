@@ -90,7 +90,7 @@ const MonthList = () => {
                                             {editMonthId === month.id ? (
                                                 <Field type="number" name="earning" className="form-control" />
                                             ) : (
-                                                `₹${month.earning.toLocaleString("en-IN")}`
+                                                `₹${month.earning ? month.earning.toLocaleString("en-IN") : 0}`
                                             )}
                                         </td>
                                         <td>₹{month.expenses.reduce((acc, expense) => acc + Number(expense.amount), 0).toLocaleString("en-IN")}</td>

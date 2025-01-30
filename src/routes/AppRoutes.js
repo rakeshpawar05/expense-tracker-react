@@ -7,6 +7,7 @@ import ExpensesPage from "../pages/ExpensePage";
 import ProtectedRoute from "./ProtectedRoutes";
 import Register from "../pages/RegisterPage";
 import MonthsPage from "../pages/MonthPage";
+import CategoryPage from "../pages/CategoryPage";
 
 const AppRoutes = () => {
     return (
@@ -39,14 +40,14 @@ const AppRoutes = () => {
                         </ProtectedRoute>
                     }
                 />
-                {/* <Route
-          path="/categories"
-          element={
-            <ProtectedRoute>
-              <CategoriesPage />
-            </ProtectedRoute>
-          }
-        /> */}
+                <Route
+                    path="/categories"
+                    element={
+                        <ProtectedRoute>
+                            <CategoryPage />
+                        </ProtectedRoute>
+                    }
+                />
                 <Route path="*" element={<h1>404 - Page Not Found</h1>} />
             </Routes>
         </Router>

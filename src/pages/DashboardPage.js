@@ -1,62 +1,62 @@
 import React, { useState, useEffect } from "react";
-import { getAmountApi, getMonthNamesApi, getMonthByName , createMonthApi} from "../api/AxiosService";
+import { getAmountApi, getMonthNamesApi, getMonthByName, createMonthApi } from "../api/AxiosService";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useAuth } from "../Auth/AuthContext";
 import TopFiveExpenses from "../components/expense/TopFiveExpenses";
+import { FaMoneyBillWave, FaShoppingCart, FaWallet } from "react-icons/fa";
+import { ProgressBar } from "react-bootstrap";
+
 
 const DashboardPage = () => {
 
-  const { userDetails, setCurrentMonth, currentMonth } = useAuth();
+  const { userDetails, setCurrentMonth, currentMonth, setListOfAvailableMonths, listOfAvailableMonths } = useAuth();
   const [expense, setExpense] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [monthNames, setMonthNames] = useState([]);
+  // const [monthNames, setMonthNames] = useState([]);
   const [summary, setSummary] = useState({ earnings: 0, expenses: 0, balance: 0 });
+  const [spendingPercentage, setSpendingPercentage] = useState(0);
 
   const monthList = ["January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"];
 
   const yearList = ["2025", "2026", "2027", "2028"];
 
-  // useEffect(() => {
+  useEffect(() => {
+    console.log("month name " + currentMonth + " type " + typeof (currentMonth))
+    fetchDetails({ month: currentMonth })
+  }, [])
+
   const fetchDetails = async (values) => {
     try {
+      console.log("valeus " + values)
       await getMonthByName(values.month).then((response) => {
-        // setAmount(response.data);
-        console.log("month " + JSON.stringify(response.data))
-        console.log("earnings " + response.data.expenses.reduce((acc, expense) => acc + Number(expense.amount), 0))
-        // response.data.expenses.map( expense => expense.amount).sum();
-        setCurrentMonth(response.data.name)
+        setCurrentMonth(response.data.name);
         updateSummary(response.data.expenses, response.data.earning);
-        console.log("done")
-      })
+      });
     } catch (error) {
       console.error("Failed to fetch amount:", error);
     } finally {
       setLoading(false);
     }
   };
-  // fetchAmount();
-  // }, []);
 
-  // Function to update the summary
   const updateSummary = (updatedExpenses, earning) => {
     const totalExpenses = updatedExpenses.reduce((acc, expense) => acc + Number(expense.amount), 0);
-    const totalEarnings = earning; // Replace with actual earnings logic or fetch from API
+    const totalEarnings = earning;
     setSummary({
       earnings: totalEarnings,
       expenses: totalExpenses,
       balance: totalEarnings - totalExpenses,
     });
+    setSpendingPercentage((totalExpenses / totalEarnings) * 100);
   };
 
   useEffect(() => {
     const fetchMonthNames = async () => {
       try {
-        console.log("fetching month names for user id " + userDetails.userId)
         await getMonthNamesApi(userDetails.userId).then((response) => {
-          console.log("names " + response.data)
-          setMonthNames(response.data);
-        })
+          setListOfAvailableMonths(response.data);
+        });
       } catch (error) {
         console.error("Failed to fetch amount:", error);
       } finally {
@@ -67,23 +67,17 @@ const DashboardPage = () => {
     fetchMonthNames();
   }, [userDetails.userId, currentMonth]);
 
-  // Function to add a new month
   const handleAddMonth = async (values, { resetForm }) => {
     try {
-      // const response = await axios.post(`${API_BASE_URL}/months`, values);
-      // setMonths([...months, response.data]); // Assuming response contains the added month
-      console.log("adding month " + JSON.stringify(values));
       const monthReq = {
         name: values.month + "," + values.year,
         earning: values.earning,
         userId: userDetails.userId
-      }
+      };
 
       await createMonthApi(monthReq).then((response) => {
-        console.log("month created with id " + response.data)
-        // setMonthNames(response.data);
-        setCurrentMonth(monthReq.name)
-      })
+        setCurrentMonth(monthReq.name);
+      });
       resetForm();
     } catch (error) {
       console.error("Failed to add month:", error);
@@ -91,204 +85,146 @@ const DashboardPage = () => {
     }
   };
 
-  // return (
-  //   <div className="container mt-4">
-  //     <h1 className="mb-4">Dashboard</h1>
-  //     <div className="row">
-  //       <div className="col-md-6">
-  //         <div className="card p-3 shadow-sm">
-  //           <h4>Total Earnings</h4>
-  //           <p>$5,000</p>
-  //         </div>
-  //       </div>
-  //       <div className="col-md-6">
-  //         <div className="card p-3 shadow-sm">
-  //           <h4>Total Expenses</h4>
-  //           <p>{amount}</p>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   </div>
-  // );
   return (
     <div className="container mt-5">
 
-      <div className="container mt-5">
-        <h2>Monthly DashBoard</h2>
-        <Formik
-          initialValues={{
-            month: "", // Initial value for the dropdown
-          }}
-          onSubmit={values => fetchDetails(values)}
-        >
-          {() => (
-            <Form>
-              <div className="mb-3">
-                <label htmlFor="month" className="form-label">
-                  Select Month
-                </label>
-                <Field
-                  as="select"
-                  id="month"
-                  name="month"
-                  className="form-control"
-                >
-                  <option value="">-- Select an option --</option>
-                  {monthNames.map((month, index) => (
-                    <option key={index} value={month}>
-                      {month}
-                    </option>
-                  ))}
-                </Field>
-              </div>
-              <button type="submit" className="btn btn-primary">
-                Submit
-              </button>
-            </Form>
-          )}
-        </Formik>
-      </div>
+      {/* Header Section */}
+      <h2 className="text-center mb-4">{currentMonth} Monthly Dashboard</h2>
+
+      {/* Month Selector Form */}
+      <Formik
+        initialValues={{ month: "" }}
+        onSubmit={values => fetchDetails(values)}
+      >
+        {() => (
+          // <Form className="mb-4">
+          //   <div className="form-group ">
+          //     <label htmlFor="month" className="form-label col-md-4">Select Month</label>
+          //     <Field as="select" id="month" name="month col-md-4" className="form-control">
+          //       <option value="" className="col-md-4">-- Select a month --</option>
+          //       {listOfAvailableMonths.map((month, index) => (
+          //         <option key={index} value={month}>{month}</option>
+          //       ))}
+          //     </Field>
+          //   </div>
+          //   <button type="submit" className="btn btn-primary w-100 mt-3">Submit</button>
+          // </Form>
+          <Form className="mb-4 d-flex align-items-center gap-3">
+            <div className="form-group mb-0">
+              <label htmlFor="month" className="form-label me-2">Select Month:</label>
+              <Field as="select" id="month" name="month" className="form-control d-inline-block w-auto">
+                <option value="">-- Select a month --</option>
+                {listOfAvailableMonths.map((month, index) => (
+                  <option key={index} value={month}>{month}</option>
+                ))}
+              </Field>
+            </div>
+            <button type="submit" className="btn btn-primary">Submit</button>
+          </Form>
+
+        )}
+      </Formik>
 
       {/* Summary Section */}
-      <div className="row mb-4 pt-3">
+      {/* <div className="row mb-4">
         <div className="col-md-4">
-          <div className="card p-3">
-            <h5>Earnings</h5>
-            {<p>₹{(summary.earnings).toLocaleString('en-IN')}</p>}
+          <div className="card shadow-sm p-4">
+            <h5 className="card-title">Earnings</h5>
+            <p className="card-text">₹{summary.earnings.toLocaleString('en-IN')}</p>
           </div>
         </div>
         <div className="col-md-4">
-          <div className="card p-3">
-            <h5>Expenses</h5>
-            {<p>₹{(summary.expenses).toLocaleString('en-IN')}</p>}
+          <div className="card shadow-sm p-4">
+            <h5 className="card-title">Expenses</h5>
+            <p className="card-text">₹{summary.expenses.toLocaleString('en-IN')}</p>
           </div>
         </div>
         <div className="col-md-4">
-          <div className="card p-3">
-            <h5>Balance</h5>
-            {<p>₹{(summary.balance).toLocaleString('en-IN')}</p>}
+          <div className="card shadow-sm p-4">
+            <h5 className="card-title">Balance</h5>
+            <p className="card-text">₹{summary.balance.toLocaleString('en-IN')}</p>
+          </div>
+        </div>
+      </div> */}
+
+      <h3>Expense Bar</h3>
+      <ProgressBar now={spendingPercentage} label={`${spendingPercentage.toFixed(1)}%`} className="mb-4" />
+
+      <div className="row mb-4 d-flex justify-content-center gap-3">
+        <div className="col-md-3 col-sm-6">
+          <div className="card shadow-lg p-4 text-white bg-success rounded-3">
+            <div className="d-flex align-items-center">
+              <FaMoneyBillWave size={30} className="me-3" />
+              <h5 className="card-title mb-0">Earnings</h5>
+            </div>
+            <p className="card-text mt-2 fs-4 fw-bold">₹{summary.earnings.toLocaleString('en-IN')}</p>
+          </div>
+        </div>
+
+        <div className="col-md-3 col-sm-6">
+          <div className="card shadow-lg p-4 text-white bg-danger rounded-3">
+            <div className="d-flex align-items-center">
+              <FaShoppingCart size={30} className="me-3" />
+              <h5 className="card-title mb-0">Expenses</h5>
+            </div>
+            <p className="card-text mt-2 fs-4 fw-bold">₹{summary.expenses.toLocaleString('en-IN')}</p>
+          </div>
+        </div>
+
+        <div className="col-md-3 col-sm-6">
+          <div className="card shadow-lg p-4 text-white bg-primary rounded-3">
+            <div className="d-flex align-items-center">
+              <FaWallet size={30} className="me-3" />
+              <h5 className="card-title mb-0">Balance</h5>
+            </div>
+            <p className="card-text mt-2 fs-4 fw-bold">₹{summary.balance.toLocaleString('en-IN')}</p>
           </div>
         </div>
       </div>
 
+      {/* Top Five Expenses Section */}
       <TopFiveExpenses />
 
       {/* Add New Month Section */}
-      {/* <div className="mb-4">
+      {/* <div className="mt-5">
         <h4>Add New Month</h4>
         <Formik
           initialValues={{ month: "", year: "", earning: 0 }}
           onSubmit={handleAddMonth}
         >
-          <Form className="d-flex">
-            <label htmlFor="month" className="form-label">
-              Select Month
-            </label>
-            <Field
-              as="select"
-              id="month"
-              name="month"
-              className="form-control"
-            >
-              <option value="">-- Select a month --</option>
-              {monthList.map((month, index) => (
-                <option key={index} value={month}>
-                  {month}
-                </option>
-              ))}
-            </Field>
-
-            <label htmlFor="year" className="form-label">
-              Select Year
-            </label>
-            <Field
-              as="select"
-              id="year"
-              name="year"
-              className="form-control"
-            >
-              <option value="">-- Select a year --</option>
-              {yearList.map((year, index) => (
-                <option key={index} value={year}>
-                  {year}
-                </option>
-              ))}
-            </Field>
-
-            <label htmlFor="earning" className="form-label">
-              Add Earnings
-            </label>
-            <Field name="earning" id="earning" className="form-control me-2" placeholder="Enter amount" />
-
-            <button type="submit" className="btn btn-primary">Add Month</button>
-          </Form>
-        </Formik>
-      </div> */}
-
-      {/* Add Expense Section */}
-      {/* <div className="mb-4">
-        <h4>Add Expense</h4>
-        <Formik
-          initialValues={{}}
-        // onSubmit={handleAddExpense}
-        >
           <Form className="row g-3">
-            <div className="col-md-3">
-              <Field name="name" className="form-control" placeholder="Expense Name" />
-            </div>
-            <div className="col-md-3">
-              <Field name="category" as="select" className="form-control">
-                <option value="">Select Category</option>
-                <option value="Food">Food</option>
-                <option value="Travel">Travel</option>
-                <option value="Utilities">Utilities</option>
-                <option value="Other">Other</option>
+            <div className="col-md-4">
+              <label htmlFor="month" className="form-label">Select Month</label>
+              <Field as="select" id="month" name="month" className="form-control">
+                <option value="">-- Select a month --</option>
+                {monthList.map((month, index) => (
+                  <option key={index} value={month}>{month}</option>
+                ))}
               </Field>
             </div>
-            <div className="col-md-2">
-              <Field name="amount" type="number" className="form-control" placeholder="Amount" />
+
+            <div className="col-md-4">
+              <label htmlFor="year" className="form-label">Select Year</label>
+              <Field as="select" id="year" name="year" className="form-control">
+                <option value="">-- Select a year --</option>
+                {yearList.map((year, index) => (
+                  <option key={index} value={year}>{year}</option>
+                ))}
+              </Field>
             </div>
-            <div className="col-md-2">
-              <Field name="date" type="date" className="form-control" />
+
+            <div className="col-md-4">
+              <label htmlFor="earning" className="form-label">Add Earnings</label>
+              <Field name="earning" id="earning" className="form-control" placeholder="Enter amount" />
             </div>
-            <div className="col-md-2">
-              <button type="submit" className="btn btn-success w-100">Add Expense</button>
+
+            <div className="col-md-12 mt-3">
+              <button type="submit" className="btn btn-success w-100">Add Month</button>
             </div>
           </Form>
         </Formik>
       </div> */}
 
-      {/* Expense List Section */}
-      {/* <div>
-
-        <h4>Expense List for {currentMonth || "Selected Month"}</h4>
-        {expenses.length > 0 ? (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Amount</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {expenses.map(exp => (
-                <tr key={exp.id}>
-                  <td>{exp.id}</td>
-                  <td>{exp.name}</td>
-                  <td>{exp.category}</td>
-                  <td>${exp.amount}</td>
-                  <td>{exp.date}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>No expenses added yet.</p>
-        )}
-      </div> */}
     </div>
   );
 };

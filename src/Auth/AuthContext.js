@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { loginApi } from "../api/AxiosService";
 // import { useNavigate } from "react-router-dom";
+import {monthList} from "../components/month/MonthNameList";
 
 const AuthContext = React.createContext();
 
@@ -19,6 +20,7 @@ export function AuthProvider({ children }) {
     })
 
     const [currentMonth, setCurrentMonth] = useState('');
+    const [listOfAvailableMonths, setListOfAvailableMonths] = useState([]);
 
     const doLogin = async (values) => {
         try {
@@ -32,6 +34,11 @@ export function AuthProvider({ children }) {
                 name: response.data.name,
                 token: response.data.token,
             }));
+
+            const date = new Date();
+            console.log(monthList[date.getMonth()])
+            setCurrentMonth(monthList[date.getMonth()] +"," + date.getFullYear())
+            console.log("setting default month "+ currentMonth)
     
             localStorage.setItem("jwtToken", response.data.token);
         } catch (error) {
@@ -87,7 +94,9 @@ export function AuthProvider({ children }) {
         logout,
         userDetails,
         currentMonth,
-        setCurrentMonth
+        setCurrentMonth,
+        listOfAvailableMonths,
+        setListOfAvailableMonths
     }
 
     return (

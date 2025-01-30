@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../Auth/AuthContext";
 import { getTop5Expenses } from "../../api/AxiosService";
+import { FaList } from "react-icons/fa";
 
 const TopFiveExpenses = () => {
 
@@ -50,7 +51,7 @@ const TopFiveExpenses = () => {
         <div className="container mt-mb-5 pb-3">
 
             {/* Top 5 Expenses Section */}
-            <div className="card">
+            {/* <div className="card">
                 <div className="card-body">
                     <h3>Top 5 Expenses of the Month</h3>
 
@@ -71,9 +72,9 @@ const TopFiveExpenses = () => {
                                 </tr>
                             ))}
                         </tbody>
-                    </table>
+                    </table> */}
 
-                    {/* <ul className="list-group">
+            {/* <ul className="list-group">
                         {topExpenses.length > 0 ? (
                             topExpenses.map((expense, index) => (
                                 // <li key={index} className="list-group-item d-flex justify-content-between">
@@ -92,9 +93,89 @@ const TopFiveExpenses = () => {
                             <li className="list-group-item text-center">No expenses found.</li>
                         )}
                     </ul> */}
+            {/* </div>
+            </div> */}
+
+            {/* <div className="card shadow-lg p-4 rounded-3">
+                <div className="card-body">
+                    <div className="d-flex align-items-center mb-3">
+                        <FaList size={30} className="me-3 text-primary" />
+                        <h4 className="mb-0 text-primary">Top 5 Expenses of the Month</h4>
+                    </div>
+
+                    <table className="table table-striped table-hover">
+                        <thead className="bg-primary text-white">
+                            <tr>
+                                <th style={{ width: "15%" }}>Date</th>
+                                <th style={{ width: "70%" }}>Description</th>
+                                <th style={{ width: "15%", textAlign: "right" }}>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {topExpenses.length > 0 ? (
+                                topExpenses.map((expense, index) => (
+                                    <tr key={index}>
+                                        <td className="fw-bold">{expense.date}</td>
+                                        <td className="text-truncate">{expense.description}</td>
+                                        <td className="text-end fw-bold text-danger">
+                                            ₹{expense.amount.toLocaleString('en-IN')}
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="3" className="text-center text-muted">
+                                        No expenses found.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div> */}
+
+
+            <div className="card shadow-lg p-4 rounded-3" style={{ background: "#f8f9fa", border: "2px solid #007bff" }}>
+                <div className="card-body">
+                    <div className="d-flex align-items-center mb-3">
+                        <FaList size={30} className="me-3 text-primary" />
+                        <h4 className="mb-0 text-primary fw-bold">Top 5 Expenses of the Month</h4>
+                    </div>
+
+                    <table className="table table-hover">
+                        <thead style={{ background: "linear-gradient(90deg, #007bff, #0056b3)", color: "white" }}>
+                            <tr>
+                                <th style={{ width: "15%", fontSize: "1.1rem", fontWeight: "bold" }}>Date</th>
+                                <th style={{ width: "65%", fontSize: "1.1rem", fontWeight: "bold" }}>Description</th>
+                                <th style={{ width: "20%", textAlign: "right", fontSize: "1.1rem", fontWeight: "bold" }}>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {topExpenses.length > 0 ? (
+                                topExpenses.map((expense, index) => (
+                                    <tr key={index} style={{ backgroundColor: index % 2 === 0 ? "#ffffff" : "#f1f1f1" }}>
+                                        <td className="fw-bold text-dark">{expense.date}</td>
+                                        <td className="text-truncate text-secondary">{expense.description}</td>
+                                        <td className="text-end fw-bold" style={{ color: "#dc3545", fontSize: "1.1rem" }}>
+                                            ₹{expense.amount.toLocaleString('en-IN')}
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="3" className="text-center text-muted fw-bold">
+                                        No expenses found.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
+
         </div>
+
+
     );
 };
 

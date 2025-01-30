@@ -36,4 +36,8 @@ export const updateExpenseApi = async(id, expense) => await axiosInstance.put(`/
 
 export const deleteExpenseApi = async (id) => await axiosInstance.delete(`/expenses/${id}`);
 
+export const createCategoryApi = async(category) => await axiosInstance.post("/categories", category);
+
 export const getCategoriesApi = async(monthName) => await axiosInstance.get("/categories", {params:{monthName: monthName}});
+
+export const deleteCategoryApi = async(id) => await axiosInstance.delete(`/categories/${id}`);
