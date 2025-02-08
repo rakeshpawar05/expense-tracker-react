@@ -8,6 +8,7 @@ import ProtectedRoute from "./ProtectedRoutes";
 import Register from "../pages/RegisterPage";
 import MonthsPage from "../pages/MonthPage";
 import CategoryPage from "../pages/CategoryPage";
+import EventPage from "../pages/EventPage";
 
 const AppRoutes = () => {
     return (
@@ -45,6 +46,14 @@ const AppRoutes = () => {
                     element={
                         <ProtectedRoute>
                             <CategoryPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/events"
+                    element={
+                        <ProtectedRoute>
+                            <EventPage />
                         </ProtectedRoute>
                     }
                 />

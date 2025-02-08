@@ -1,11 +1,11 @@
 import React from "react";
-import { getAmountApi, getMonthNamesApi, getMonthByName, createMonthApi } from "../../api/AxiosService";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { createMonthApi } from "../../api/AxiosService";
+import { Formik, Form, Field } from "formik";
 import { useAuth } from "../../Auth/AuthContext";
 
 const AddMonth = () => {
 
-    const { userDetails, setCurrentMonth, currentMonth } = useAuth();
+    const { userDetails} = useAuth();
 
     const monthList = ["January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"];
@@ -27,7 +27,7 @@ const AddMonth = () => {
             await createMonthApi(monthReq).then((response) => {
                 console.log("month created with id " + response.data)
                 // setMonthNames(response.data);
-                setCurrentMonth(monthReq.name)
+                // setCurrentMonth(monthReq.name)
             })
             resetForm();
         } catch (error) {

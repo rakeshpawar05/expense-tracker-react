@@ -58,6 +58,11 @@ const Navbar = () => {
                 Categories
               </Link>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/events">
+                Events
+              </Link>
+            </li>
             {isLogged ? (
               <li className="nav-item">
                 <button className="nav-link" onClick={handleOnClick}>

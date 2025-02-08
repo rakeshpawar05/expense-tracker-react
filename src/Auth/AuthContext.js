@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { loginApi } from "../api/AxiosService";
 // import { useNavigate } from "react-router-dom";
-import {monthList} from "../components/month/MonthNameList";
+import { monthList } from "../components/month/MonthNameList";
 
 const AuthContext = React.createContext();
 
@@ -12,11 +12,48 @@ export function useAuth() {
 export function AuthProvider({ children }) {
 
     // const navigate = useNavigate();
+    // const navigate = useNavigate();
+
+    const logout = () => {
+        console.log("user logged out successful")
+        setUserDetails((userDetails) => ({
+            ...userDetails,
+            "userId": 0,
+            "name": "",
+            "token": ""
+        }))
+        localStorage.removeItem("jwtToken")
+        sessionStorage.removeItem("pageReloaded");
+    }
+
+    useEffect(() => {
+        // Remove user data and redirect on page load
+        // localStorage.removeItem("authToken"); // Clear stored token or session
+        // sessionStorage.removeItem("authToken");
+        // setUser(null);
+        const isPageReloaded = sessionStorage.getItem("pageReloaded");
+
+        if (!isPageReloaded) {
+            // logout();
+            setUserDetails((userDetails) => ({
+                ...userDetails,
+                "userId": 0,
+                "name": "",
+                "token": ""
+            }))
+            localStorage.removeItem("jwtToken")
+            sessionStorage.setItem("pageReloaded", "true");
+            window.location.href = "/"; // Redirect to login page
+        }
+    }, []);
 
     const [userDetails, setUserDetails] = useState({
         "userId": 0,
         "name": "",
-        "token": ""
+        "token": "",
+        "months": [],
+        "categories": [],
+        "expenses": []
     })
 
     const [currentMonth, setCurrentMonth] = useState('');
@@ -25,7 +62,7 @@ export function AuthProvider({ children }) {
     const doLogin = async (values) => {
         try {
             const response = await loginApi(JSON.stringify(values));
-    
+
             // If login is successful, set user details and store the token
             console.log("Login successful:", response.data);
             setUserDetails((userDetails) => ({
@@ -35,11 +72,14 @@ export function AuthProvider({ children }) {
                 token: response.data.token,
             }));
 
+
             const date = new Date();
             console.log(monthList[date.getMonth()])
-            setCurrentMonth(monthList[date.getMonth()] +"," + date.getFullYear())
-            console.log("setting default month "+ currentMonth)
-    
+            setCurrentMonth(monthList[date.getMonth()] + "," + date.getFullYear())
+            console.log("setting default month " + currentMonth)
+            sessionStorage.removeItem("pageReloaded"); 
+
+
             localStorage.setItem("jwtToken", response.data.token);
         } catch (error) {
             // If login fails, throw an error with the message
@@ -47,7 +87,7 @@ export function AuthProvider({ children }) {
             throw new Error(error.response?.data?.message || "Bad credentials...Try Again!!!"); // Throwing error to be caught in the LoginPage
         }
     };
-    
+
 
     // const doLogin = async (values) => {
     //     await loginApi(JSON.stringify(values))
@@ -75,17 +115,6 @@ export function AuthProvider({ children }) {
 
     }, [userDetails])
 
-    const logout = () => {
-        console.log("user logged out successful")
-        setUserDetails((userDetails) => ({
-            ...userDetails,
-            "userId": 0,
-            "name": "",
-            "token": ""
-        }))
-        localStorage.removeItem("jwtToken")
-    }
-
     const isLogged = !!localStorage.getItem("jwtToken");
 
     const value = {
@@ -96,7 +125,8 @@ export function AuthProvider({ children }) {
         currentMonth,
         setCurrentMonth,
         listOfAvailableMonths,
-        setListOfAvailableMonths
+        setListOfAvailableMonths,
+        setUserDetails
     }
 
     return (

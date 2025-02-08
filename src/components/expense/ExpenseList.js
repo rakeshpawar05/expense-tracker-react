@@ -5,24 +5,27 @@ import { getExpenseApi, updateExpenseApi, deleteExpenseApi } from "../../api/Axi
 import { FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa"; // Importing icons
 
 const ExpenseList = ({ expenseList, viewFor }) => {
-    const { currentMonth } = useAuth();
+    const { currentMonth, userDetails } = useAuth();
     const [editingId, setEditingId] = useState(null);
     const [expenses, setExpenses] = useState(expenseList);
 
     useEffect(() => {
-        if (expenses) {
+        if (expenses.length > 0) {
             console.log(expenses)
         } else {
             fetchExpenses();
         }
-        fetchExpenses();
+        // fetchExpenses();
     }, [])
 
     // useEffect(() => {
     const fetchExpenses = async () => {
         try {
             console.log("fetching expenses for month " + currentMonth);
-            const params = { "monthName": currentMonth };
+            const params = {
+                "monthName": currentMonth,
+                "userId": userDetails.userId
+            };
             const response = await getExpenseApi(params);
             console.log("expenses " + JSON.stringify(response.data));
             setExpenses(response.data);
@@ -125,9 +128,11 @@ const ExpenseList = ({ expenseList, viewFor }) => {
                                     )}
                                 </Formik>
                             ))) : (
-                            <td colSpan="4" className="text-center text-muted fw-bold">
-                                No expenses found.
-                            </td>
+                            <tr>
+                                <td colSpan="4" className="text-center text-muted fw-bold">
+                                    No expenses found.
+                                </td>
+                            </tr>
                         )}
                     </tbody>
                 </table>

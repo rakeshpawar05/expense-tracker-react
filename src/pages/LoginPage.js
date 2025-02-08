@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useAuth } from "../Auth/AuthContext";
+import { getFullUser } from "../api/AxiosService";
 
 const LoginPage = () => {
-    const { isLogged, doLogin, userDetails } = useAuth();
+    const { isLogged, doLogin, userDetails, setUserDetails } = useAuth();
     const navigate = useNavigate();
     
     const [loginError, setLoginError] = useState(null); // State to hold error message
@@ -30,15 +31,36 @@ const LoginPage = () => {
         try {
             await doLogin(values); // Try login
             navigate("/dashboard"); // Redirect on success
+            // populateUser();
         } catch (error) {
             // If login fails, set the error message
             setLoginError(error.message);
         }
     };
 
-    useEffect(() => {
-        console.log("login page Changed user details : ", userDetails);
-    }, [userDetails]);
+    // useEffect(() => {
+    //     populateUser();
+    //     console.log("login page Changed user details : ", userDetails);
+    // }, [userDetails]);
+
+    const populateUser = async () => {
+        try {            
+            const userResponse = await getFullUser(userDetails.userId);
+            console.log("full user " + JSON.stringify(userResponse.data));
+
+            setUserDetails((userDetails) => ({
+                ...userDetails,
+                userId: userDetails.userId,
+                name: userDetails.name,
+                token: userDetails.token,
+                months: userResponse.data.months,
+                categories: userResponse.data.category,
+                expenses: userResponse.data.expenses
+            }));
+        } catch (error) {
+            console.log("Unable to populate user details")
+        }
+    }
 
     return (
         <div className="container d-flex justify-content-center align-items-center vh-100">

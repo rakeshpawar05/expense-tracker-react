@@ -6,7 +6,7 @@ import { getExpenseApi } from "../api/AxiosService";
 
 const ExpensesPage = () => {
 
-  const {currentMonth} = useAuth();
+  const {currentMonth, userDetails} = useAuth();
 
   const [toggleView, setToggleView] = useState(true);
   const [expenses, setExpenses] = useState([]);
@@ -18,7 +18,10 @@ const ExpensesPage = () => {
         const fetchExpenses = async () => {
             try {
                 console.log("fetching expenses for month " + currentMonth);
-                const params = { "monthName": currentMonth };
+                const params = { 
+                  "monthName": currentMonth,
+                  "userId": userDetails.userId
+                 };
                 const response = await getExpenseApi(params);
                 console.log("expenses " + JSON.stringify(response.data));
                 setExpenses(response.data);

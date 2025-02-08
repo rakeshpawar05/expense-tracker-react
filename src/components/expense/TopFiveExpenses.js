@@ -5,7 +5,7 @@ import { FaList } from "react-icons/fa";
 
 const TopFiveExpenses = () => {
 
-    const { currentMonth } = useAuth();
+    const { currentMonth, userDetails } = useAuth();
 
     // Mock data for the top 5 expenses (replace with real data from your API)
     const [topExpenses, setTopExpenses] = useState([]);
@@ -25,7 +25,7 @@ const TopFiveExpenses = () => {
                 // ];
 
                 try {
-                    await getTop5Expenses(currentMonth).then((response) => {
+                    await getTop5Expenses(userDetails.userId, currentMonth).then((response) => {
                         // setAmount(response.data);
                         console.log("expense " + JSON.stringify(response.data))
                         // console.log("earnings " + response.data.expenses.reduce((acc, expense) => acc + Number(expense.amount), 0))
@@ -36,7 +36,8 @@ const TopFiveExpenses = () => {
                         console.log("done")
                     })
                 } catch (error) {
-                    console.error("Failed to top 5 expenses:", error);
+                    console.log("Failed to get Top 5 expenses for "+ currentMonth + " " + error.response.data)
+                    // console.error("Failed to get top 5 expenses:");
                 }
 
 

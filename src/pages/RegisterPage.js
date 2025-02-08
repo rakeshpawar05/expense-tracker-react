@@ -20,6 +20,8 @@ const Register = () => {
             await registerApi(values); // Call register API
             navigate("/"); // Redirect to login after success
         } catch (error) {
+            // console.log(" error " + error.response.data)
+            error.response.status === 409 ? setErrors({ email: error.response.data}) : 
             setErrors({ general: error.response?.data?.message || "Registration failed. Try again." });
         } finally {
             setSubmitting(false);

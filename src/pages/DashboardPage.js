@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getAmountApi, getMonthNamesApi, getMonthByName, createMonthApi } from "../api/AxiosService";
+import { getFullUser, getMonthNamesApi, getMonthByName, createMonthApi } from "../api/AxiosService";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useAuth } from "../Auth/AuthContext";
 import TopFiveExpenses from "../components/expense/TopFiveExpenses";
@@ -9,7 +9,7 @@ import { ProgressBar } from "react-bootstrap";
 
 const DashboardPage = () => {
 
-  const { userDetails, setCurrentMonth, currentMonth, setListOfAvailableMonths, listOfAvailableMonths } = useAuth();
+  const { userDetails, setCurrentMonth, currentMonth, setListOfAvailableMonths, listOfAvailableMonths, setUserDetails } = useAuth();
   const [expense, setExpense] = useState(0);
   const [loading, setLoading] = useState(true);
   // const [monthNames, setMonthNames] = useState([]);
@@ -28,11 +28,13 @@ const DashboardPage = () => {
 
   const fetchDetails = async (values) => {
     try {
-      console.log("valeus " + values)
-      await getMonthByName(values.month).then((response) => {
-        setCurrentMonth(response.data.name);
-        updateSummary(response.data.expenses, response.data.earning);
-      });
+      console.log("valeus " + JSON.stringify(values))
+      await getFullUser(userDetails.userId).then((response) => {
+        console.log("respone ==== " + JSON.stringify(response.data))
+        // setCurrentMonth(values.month)
+        response.data.months.length > 0 && updateSummary(response.data.months.filter(month => month.name === values.month)[0].expenses,
+          response.data.months.filter(month => month.name === values.month)[0].earning)
+      })
     } catch (error) {
       console.error("Failed to fetch amount:", error);
     } finally {
@@ -48,6 +50,7 @@ const DashboardPage = () => {
       expenses: totalExpenses,
       balance: totalEarnings - totalExpenses,
     });
+    console.log("update summary " + JSON.stringify(summary))
     setSpendingPercentage((totalExpenses / totalEarnings) * 100);
   };
 
@@ -56,6 +59,7 @@ const DashboardPage = () => {
       try {
         await getMonthNamesApi(userDetails.userId).then((response) => {
           setListOfAvailableMonths(response.data);
+          console.log("name list " + listOfAvailableMonths)
         });
       } catch (error) {
         console.error("Failed to fetch amount:", error);
@@ -65,25 +69,26 @@ const DashboardPage = () => {
     };
 
     fetchMonthNames();
+    // fetchDetails({month: currentMonth});
   }, [userDetails.userId, currentMonth]);
 
-  const handleAddMonth = async (values, { resetForm }) => {
-    try {
-      const monthReq = {
-        name: values.month + "," + values.year,
-        earning: values.earning,
-        userId: userDetails.userId
-      };
+  // const handleAddMonth = async (values, { resetForm }) => {
+  //   try {
+  //     const monthReq = {
+  //       name: values.month + "," + values.year,
+  //       earning: values.earning,
+  //       userId: userDetails.userId
+  //     };
 
-      await createMonthApi(monthReq).then((response) => {
-        setCurrentMonth(monthReq.name);
-      });
-      resetForm();
-    } catch (error) {
-      console.error("Failed to add month:", error);
-      alert("Failed to add month. Please try again.");
-    }
-  };
+  //     await createMonthApi(monthReq).then((response) => {
+  //       setCurrentMonth(monthReq.name);
+  //     });
+  //     resetForm();
+  //   } catch (error) {
+  //     console.error("Failed to add month:", error);
+  //     alert("Failed to add month. Please try again.");
+  //   }
+  // };
 
   return (
     <div className="container mt-5">

@@ -19,14 +19,14 @@ const MonthList = () => {
             console.log("Fetching months for userId " + userDetails.userId);
             const response = await getMonthsApi(userDetails.userId);
             setMonths(response.data);
-            setCurrentMonth(response.data.name);
+            // setCurrentMonth(response.data.name);
         } catch (error) {
             console.error("Error fetching months:", error);
         }
     };
 
     const onUpdate = (id, values) => {
-        const updatedMonths = months.map((month) => 
+        const updatedMonths = months.map((month) =>
             month.id === id ? { ...month, earning: values.earning } : month
         );
         setMonths(updatedMonths);

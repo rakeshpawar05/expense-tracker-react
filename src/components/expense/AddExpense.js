@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 const AddExpense = () => {
 
     // const {currentMonth} = useAuth();
-    const { currentMonth, setCurrentMonth } = useAuth();
+    const { currentMonth, setCurrentMonth, userDetails } = useAuth();
     const navigate = useNavigate();
 
     const monthList = ["January", "February", "March", "April", "May", "June",
@@ -22,6 +22,7 @@ const AddExpense = () => {
     const fetchCategories = async () => {
         try {
             await getCategoriesApi(currentMonth).then((response) => {
+                response.data.push({ "name": "Add New" })
                 console.log("categories " + JSON.stringify(response.data))
                 setCategories(response.data);
             })
@@ -48,7 +49,8 @@ const AddExpense = () => {
                 amount: values.amount,
                 date: values.date.toString(),
                 monthName: expenseMonthName,
-                categoryName: values.categoryName
+                categoryName: values.categoryName.trim(),
+                userId: userDetails.userId
             }
 
             console.log("values " + JSON.stringify(expense))
@@ -75,10 +77,10 @@ const AddExpense = () => {
         }
     };
 
-                const goToExpenses = (expenseMonthName) => {
-                    setCurrentMonth(expenseMonthName);
-                    navigate(`/expenses`);
-                    };
+    const goToExpenses = (expenseMonthName) => {
+        // setCurrentMonth(expenseMonthName);
+        navigate(`/expenses`);
+    };
     return (
         <div className="container mt-4">
 
@@ -86,15 +88,22 @@ const AddExpense = () => {
             <div className="mb-4">
                 <h4>Add Expense</h4>
                 <Formik
-                    initialValues={{}}
+                    initialValues={{
+                        "name": "",
+                        "categoryName": "",
+                        "amount": "",
+                        "date": ""
+                    }}
                     onSubmit={handleAddExpense}
                 >
-                    <Form className="row g-3">
-                        <div className="col-md-4">
-                            <Field name="name" className="form-control" placeholder="Expense Description" />
-                        </div>
-                        <div className="col-md-2">
-                            {/* <Field
+                    {({ values }) => (
+
+                        <Form className="row g-3">
+                            <div className="col-md-4">
+                                <Field name="name" className="form-control" placeholder="Expense Description" />
+                            </div>
+                            <div className="col-md-2">
+                                {/* <Field
                                 as="select"
                                 // id="year"
                                 name="categoryName"
@@ -109,37 +118,63 @@ const AddExpense = () => {
                                 )))}
                             </Field> */}
 
-                            {categories.length > 0 ? (
-                                <Field as="select" name="categoryName" className="form-control">
-                                    <option value="">-- Select a category --</option>
-                                    {categories.map((category, index) => (
-                                        <option key={index} value={category.name}>
-                                            {category.name}
-                                        </option>
-                                    ))}
-                                </Field>
-                            ) : (
-                                <Field
-                                    type="text"
-                                    name="categoryName"
-                                    className="form-control"
-                                    placeholder="Enter category"
-                                />
-                            )}
-                        </div>
-                        <div className="col-md-2">
-                            <Field name="amount" type="number" className="form-control" placeholder="Amount" />
-                        </div>
-                        {/* <div className="col-md-2">
+                                {categories.length > 0 && values.categoryName === "" ? (
+                                    <Field as="select" name="categoryName" className="form-control">
+                                        <option value="">-- Select a category --</option>
+                                        {categories.map((category, index) => (
+                                            <option key={index} value={category.name}>
+                                                {category.name}
+                                            </option>
+                                        ))}
+                                    </Field>
+                                ) : (
+                                    values.categoryName === "Add New" ? (
+                                        <Field
+                                            type="text"
+                                            name="categoryName"
+                                            className="form-control"
+                                            placeholder="Enter category"
+                                            value={" "}
+                                        />
+                                    ) :
+                                        (
+                                            <Field
+                                                type="text"
+                                                name="categoryName"
+                                                className="form-control"
+                                                placeholder="Enter category"
+                                                // value={values.categoryName}
+                                            />
+                                        )
+                                )}
+
+                            </div>
+
+                            {/* <div className="col-md-2">
+                                {values.categoryName === "Add New" && (
+                                    <Field
+                                        type="text"
+                                        name="categoryName"
+                                        className="form-control"
+                                        placeholder="Enter category"
+                                    />
+                                )}
+
+                            </div> */}
+                            <div className="col-md-2">
+                                <Field name="amount" type="number" className="form-control" placeholder="Amount" />
+                            </div>
+                            {/* <div className="col-md-2">
                             <Field name="month" className="form-control" placeholder="month" />
                         </div> */}
-                        <div className="col-md-2">
-                            <Field name="date" type="date" className="form-control" />
-                        </div>
-                        <div className="col-md-2">
-                            <button type="submit" className="btn btn-success w-100">Add Expense</button>
-                        </div>
-                    </Form>
+                            <div className="col-md-2">
+                                <Field name="date" type="date" className="form-control" />
+                            </div>
+                            <div className="col-md-2">
+                                <button type="submit" className="btn btn-success w-100">Add Expense</button>
+                            </div>
+                        </Form>
+                    )}
                 </Formik>
             </div>
 
