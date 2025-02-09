@@ -29,6 +29,7 @@ const LoginPage = () => {
         setLoginError(null); // Reset any previous errors
 
         try {
+            console.log(`url  ${process.env.REACT_APP_API_URL}`)
             await doLogin(values); // Try login
             navigate("/dashboard"); // Redirect on success
             // populateUser();

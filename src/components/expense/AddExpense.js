@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { createExpenseApi, getCategoriesApi } from "../../api/AxiosService";
+import { createExpenseApi, getCategoriesApi, getEventsApi } from "../../api/AxiosService";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useAuth } from "../../Auth/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -14,17 +14,30 @@ const AddExpense = () => {
         "July", "August", "September", "October", "November", "December"];
 
     const [categories, setCategories] = useState([]);
+    const [events, setEvents] = useState([]);
 
     useEffect(() => {
         fetchCategories();
+        fetchEvents();
     }, [currentMonth]);
 
     const fetchCategories = async () => {
         try {
-            await getCategoriesApi(currentMonth).then((response) => {
+            await getCategoriesApi(userDetails.userId, currentMonth).then((response) => {
                 response.data.push({ "name": "Add New" })
                 console.log("categories " + JSON.stringify(response.data))
                 setCategories(response.data);
+            })
+        } catch (error) {
+            console.error("Failed to categories ", error);
+        }
+    }
+    const fetchEvents = async () => {
+        try {
+            await getEventsApi(userDetails.userId).then((response) => {
+                // response.data.push({ "name": "Add New" })
+                console.log("events " + JSON.stringify(response.data))
+                setEvents(response.data);
             })
         } catch (error) {
             console.error("Failed to categories ", error);
@@ -50,6 +63,7 @@ const AddExpense = () => {
                 date: values.date.toString(),
                 monthName: expenseMonthName,
                 categoryName: values.categoryName.trim(),
+                eventName: values.eventName,
                 userId: userDetails.userId
             }
 
@@ -91,6 +105,7 @@ const AddExpense = () => {
                     initialValues={{
                         "name": "",
                         "categoryName": "",
+                        "eventName": "",
                         "amount": "",
                         "date": ""
                     }}
@@ -143,24 +158,28 @@ const AddExpense = () => {
                                                 name="categoryName"
                                                 className="form-control"
                                                 placeholder="Enter category"
-                                                // value={values.categoryName}
+                                            // value={values.categoryName}
                                             />
                                         )
                                 )}
 
                             </div>
 
-                            {/* <div className="col-md-2">
-                                {values.categoryName === "Add New" && (
-                                    <Field
-                                        type="text"
-                                        name="categoryName"
-                                        className="form-control"
-                                        placeholder="Enter category"
-                                    />
-                                )}
+                            {events.length > 0 && (
+                                <div className="col-md-2">
 
-                            </div> */}
+                                    <Field as="select" name="eventName" className="form-control">
+                                        <option value="">-- Select a Event --</option>
+                                        {events.map((event, index) => (
+                                            <option key={index} value={event.name}>
+                                                {event.name}
+                                            </option>
+                                        ))}
+                                    </Field>
+
+                                </div>
+                            )}
+
                             <div className="col-md-2">
                                 <Field name="amount" type="number" className="form-control" placeholder="Amount" />
                             </div>
