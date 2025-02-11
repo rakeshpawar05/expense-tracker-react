@@ -93,7 +93,8 @@ const AddExpense = () => {
 
     const goToExpenses = (expenseMonthName) => {
         // setCurrentMonth(expenseMonthName);
-        navigate(`/expenses`);
+        console.log("navigating...")
+        navigate(`/expenses`, { replace: true });
     };
     return (
         <div className="container mt-4">

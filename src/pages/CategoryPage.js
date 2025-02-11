@@ -20,6 +20,7 @@ const CategoryPage = () => {
             console.log("fetching category for month " + currentMonth)
             const response = await getCategoriesApi(userDetails.userId, currentMonth);
             setCategories(response.data);
+            console.log("fetched categories ..... " + JSON.stringify(response.data))
         } catch (error) {
             console.error("Failed to fetch categories:", error);
         }
@@ -159,7 +160,7 @@ const CategoryPage = () => {
 
             {/* Render Expenses List for Selected Category */}
             {viewExpense && (
-                expenses.length > 0 ? (<ExpenseList expenseList={expenses} />)
+                expenses.length > 0 ? (<ExpenseList expenseList={expenses} fetch={false}/>)
                     : <p className="alert alert-secondary text-center">No Expense to display</p>
             )}
         </div>

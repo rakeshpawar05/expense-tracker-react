@@ -4,18 +4,18 @@ import { useAuth } from "../../Auth/AuthContext";
 import { getExpenseApi, updateExpenseApi, deleteExpenseApi } from "../../api/AxiosService";
 import { FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa"; // Importing icons
 
-const ExpenseList = ({ expenseList, viewFor }) => {
+const ExpenseList = ({ expenseList, fetch }) => {
     const { currentMonth, userDetails } = useAuth();
     const [editingId, setEditingId] = useState(null);
     const [expenses, setExpenses] = useState(expenseList);
 
     useEffect(() => {
-        if (expenses.length > 0) {
-            console.log(expenses)
-        } else {
+        console.log("param" + fetch)
+        if(fetch){
             fetchExpenses();
+        } else {
+            console.log("not fetching expenses...")
         }
-        // fetchExpenses();
     }, [])
 
     // useEffect(() => {
