@@ -80,7 +80,7 @@ const ExpenseList = ({ expenseList, viewFor }) => {
                             expenses.map((expense) => (
                                 <Formik
                                     key={expense.id}
-                                    initialValues={{ description: expense.description, amount: expense.amount }}
+                                    initialValues={{ description: expense.description, amount: expense.amount, date: expense.date }}
                                     onSubmit={(values) => onUpdate(expense.id, values)}
                                 >
                                     {({ handleSubmit }) => (
