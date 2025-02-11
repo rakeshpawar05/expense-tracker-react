@@ -162,7 +162,7 @@ const DashboardPage = () => {
               <FaMoneyBillWave size={30} className="me-3" />
               <h5 className="card-title mb-0">Earnings</h5>
             </div>
-            <p className="card-text mt-2 fs-4 fw-bold">₹{summary.earnings.toLocaleString('en-IN')}</p>
+            <p className="card-text mt-2 fs-4 fw-bold">₹{summary.earnings?.toLocaleString('en-IN') || 0}</p>
           </div>
         </div>
 
@@ -172,7 +172,7 @@ const DashboardPage = () => {
               <FaShoppingCart size={30} className="me-3" />
               <h5 className="card-title mb-0">Expenses</h5>
             </div>
-            <p className="card-text mt-2 fs-4 fw-bold">₹{summary.expenses.toLocaleString('en-IN')}</p>
+            <p className="card-text mt-2 fs-4 fw-bold">₹{summary.expenses?.toLocaleString('en-IN') || 0}</p>
           </div>
         </div>
 
@@ -182,7 +182,7 @@ const DashboardPage = () => {
               <FaWallet size={30} className="me-3" />
               <h5 className="card-title mb-0">Balance</h5>
             </div>
-            <p className="card-text mt-2 fs-4 fw-bold">₹{summary.balance.toLocaleString('en-IN')}</p>
+            <p className="card-text mt-2 fs-4 fw-bold">₹{summary.balance?.toLocaleString('en-IN') || 0}</p>
           </div>
         </div>
       </div>
