@@ -2,10 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../Auth/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { usePing } from "../hooks/pingContext";
 
 const Navbar = () => {
 
   const { isLogged, logout, userDetails } = useAuth();
+  // const { isPinging, startPinging, stopPinging } = useKeepAlive();
+  const { isBackendActive, startPinging, stopPinging, pinging } = usePing();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,12 +22,39 @@ const Navbar = () => {
     navigate("/");
   };
 
+  const handleToggle = () => {
+    pinging ? stopPinging() : startPinging();
+  };
+
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container">
         <Link className="navbar-brand" to="/dashboard">
           Expense Tracker
         </Link>
+        <div>
+          {/* Status dot */}
+          <span
+            className="me-2"
+            style={{
+              height: "12px",
+              width: "12px",
+              borderRadius: "50%",
+              backgroundColor: isBackendActive ? "limegreen" : "red",
+              display: "inline-block",
+            }}
+            title={isBackendActive ? "Backend Active" : "Backend Inactive"}
+          ></span>
+
+          {/* Toggle */}
+          <button
+            onClick={handleToggle}
+            className="btn btn-sm btn-outline-light"
+            title={pinging ? "Pause keep-alive ping" : "Resume keep-alive ping"}
+          >
+            {pinging ? "⏸" : "▶️"}
+          </button>
+        </div>
         <button
           className="navbar-toggler"
           type="button"

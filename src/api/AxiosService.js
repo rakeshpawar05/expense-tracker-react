@@ -49,3 +49,5 @@ export const createEventApi = async(event) => await axiosInstance.post("/events"
 export const getEventsApi = async(userId) => await axiosInstance.get("/events", {params:{userId: userId}});
 
 export const deleteEventApi = async(id) => await axiosInstance.delete(`/events/${id}`);
+
+export const isServiceActive = async() => await axiosInstance.get("/auth/isActive");
