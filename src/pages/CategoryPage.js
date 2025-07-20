@@ -3,12 +3,15 @@ import { Formik, Form, Field } from "formik";
 import { getCategoriesApi, createCategoryApi, deleteCategoryApi } from "../api/AxiosService";
 import { useAuth } from "../Auth/AuthContext";
 import ExpenseList from "../components/expense/ExpenseList";
+import SavingList from "../components/saving/SavingList";
 
 const CategoryPage = () => {
     const { userDetails, currentMonth, listOfAvailableMonths } = useAuth();
     const [categories, setCategories] = useState([]);
     const [viewExpense, setViewExpense] = useState(false);
     const [expenses, setExpenses] = useState([]);
+    const [viewSaving, setViewSaving] = useState(false);
+    const [savings, setSavings] = useState([]);
     const [displayId, setDisplayId] = useState(null);
 
     useEffect(() => {
@@ -97,6 +100,7 @@ const CategoryPage = () => {
                     <tr>
                         <th>Category Name</th>
                         <th>Total Expense</th>
+                        <th>Total Saving</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -109,13 +113,12 @@ const CategoryPage = () => {
                                     <td>₹{category.expenses ?
                                         category.expenses.reduce((acc, expense) => acc + Number(expense.amount), 0).toLocaleString("en-IN")
                                         : 0}</td>
+                                    {/* <td> */}
+                                    <td>₹{category.savings ?
+                                        category.savings.reduce((acc, saving) => acc + Number(saving.amount), 0).toLocaleString("en-IN")
+                                        : 0}</td>
                                     <td>
-                                        {/* <button
-                                    className="btn btn-primary btn-sm me-2"
-                                // onClick={() => navigate(`/expenses/${category.id}`)}
-                                >
-                                    View Expenses
-                                </button> */}
+
 
                                         <button
                                             className="btn btn-primary btn-sm me-2"
@@ -137,6 +140,26 @@ const CategoryPage = () => {
                                             {(viewExpense && displayId === category.id) ? "Hide Expenses" : "View Expenses"}
                                         </button>
 
+                                        <button
+                                            className="btn btn-primary btn-sm me-2"
+                                            onClick={() => {
+                                                if (viewSaving && displayId === category.id) {
+                                                    setDisplayId(null)
+                                                    setViewSaving(false)
+                                                    // setExpenses([])
+                                                } else {
+                                                    console.log(category.savings)
+                                                    setViewSaving(true)
+                                                    setDisplayId(category.id)
+                                                    setSavings(
+                                                        category.savings ? category.savings : []
+                                                    );
+                                                }
+                                            }}
+                                        >
+                                            {(viewSaving && displayId === category.id) ? "Hide Savings" : "View Savings"}
+                                        </button>
+
                                         {/* </td> */}
                                         {/* <td> */}
                                         <button
@@ -144,14 +167,14 @@ const CategoryPage = () => {
                                             onClick={() => handleDeleteCategory(category.id)}
                                         >
                                             Delete
-                                        </button>
-                                    </td>
+                                        </button></td>
+                                    {/* </td> */}
                                 </tr>
                             )
                             )) :
                             <tr>
                                 <td colSpan="3" className="text-center text-muted fw-bold">
-                                    No expenses found.
+                                    No category found.
                                 </td>
                             </tr>
                     }
@@ -162,6 +185,12 @@ const CategoryPage = () => {
             {viewExpense && (
                 expenses.length > 0 ? (<ExpenseList expenseList={expenses} fetch={false}/>)
                     : <p className="alert alert-secondary text-center">No Expense to display</p>
+            )}
+
+            {/* Render Saving List for Selected Category */}
+            {viewSaving && (
+                savings.length > 0 ? (<SavingList savingList={savings} fetch={false}/>)
+                    : <p className="alert alert-secondary text-center">No Savings to display</p>
             )}
         </div>
     );

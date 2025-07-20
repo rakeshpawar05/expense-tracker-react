@@ -3,12 +3,15 @@ import { Formik, Form, Field } from "formik";
 import { getEventsApi, createEventApi, deleteEventApi } from "../api/AxiosService";
 import { useAuth } from "../Auth/AuthContext";
 import ExpenseList from "../components/expense/ExpenseList";
+import SavingList from "../components/saving/SavingList";
 
 const EventPage = () => {
     const { userDetails} = useAuth();
     const [events, setEvents] = useState([]);
     const [viewExpense, setViewExpense] = useState(false);
     const [expenses, setExpenses] = useState([]);
+    const [viewSaving, setViewSaving] = useState(false);
+    const [savings, setSavings] = useState([]);
     const [displayId, setDisplayId] = useState(null);
 
     useEffect(() => {
@@ -96,6 +99,7 @@ const EventPage = () => {
                     <tr>
                         <th>Event Name</th>
                         <th>Total Expense</th>
+                        <th>Total Saving</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -107,6 +111,9 @@ const EventPage = () => {
                                     <td>{event.name}</td>
                                     <td>₹{event.expenses ?
                                         event.expenses.reduce((acc, expense) => acc + Number(expense.amount), 0).toLocaleString("en-IN")
+                                        : 0}</td>
+                                        <td>₹{event.savings ?
+                                        event.savings.reduce((acc, saving) => acc + Number(saving.amount), 0).toLocaleString("en-IN")
                                         : 0}</td>
                                     <td>
                                         {/* <button
@@ -137,6 +144,27 @@ const EventPage = () => {
                                             {(viewExpense && displayId === event.id) ? "Hide Expenses" : "View Expenses"}
                                         </button>
 
+                                        <button
+                                            className="btn btn-primary btn-sm me-2"
+                                            onClick={() => {
+                                                console.log(event.savings)
+                                                if (viewSaving && displayId === event.id ) {
+                                                    setViewSaving(false)
+                                                    setDisplayId(null)
+                                                    // setExpenses([])
+                                                } else {
+
+                                                    setSavings(
+                                                        event.savings ? event.savings : []
+                                                    );
+                                                    setViewSaving(true)
+                                                    setDisplayId(event.id)
+                                                }
+                                            }}
+                                        >
+                                            {(viewSaving && displayId === event.id) ? "Hide Savings" : "View Savings"}
+                                        </button>
+
                                         {/* </td> */}
                                         {/* <td> */}
                                         <button
@@ -162,6 +190,12 @@ const EventPage = () => {
             {viewExpense && (
                 expenses.length > 0 ? (<ExpenseList expenseList={expenses} />)
                     : <p className="alert alert-secondary text-center">No Expense to display</p>
+            )}
+
+            {/* Render Savings List for Selected Category */}
+            {viewSaving && (
+                savings.length > 0 ? (<SavingList savingList={savings} />)
+                    : <p className="alert alert-secondary text-center">No Saving to display</p>
             )}
         </div>
     );

@@ -55,6 +55,11 @@ const MonthList = () => {
         navigate(`/expenses`);
     };
 
+    const goToSavings = (month) => {
+        setCurrentMonth(month.name);
+        navigate(`/savings`);
+    };
+
     return (
         <div className="container mt-4">
             <h4 className="mb-3 text-center">📅 Available Months</h4>
@@ -64,6 +69,7 @@ const MonthList = () => {
                         <th>Month</th>
                         <th>Earning</th>
                         <th>Expense</th>
+                        <th>saving</th>
                         <th>Balance</th>
                         <th>Actions</th>
                     </tr>
@@ -76,6 +82,7 @@ const MonthList = () => {
                                 initialValues={{
                                     earning: month.earning,
                                     expenses: month.expenses.reduce((acc, expense) => acc + Number(expense.amount), 0),
+                                    savings: month.savings.reduce((acc, saving) => acc + Number(saving.amount), 0),
                                     balance: month.earning - month.expenses.reduce((acc, expense) => acc + Number(expense.amount), 0),
                                 }}
                                 onSubmit={(values) => {
@@ -94,10 +101,14 @@ const MonthList = () => {
                                             )}
                                         </td>
                                         <td>₹{month.expenses.reduce((acc, expense) => acc + Number(expense.amount), 0).toLocaleString("en-IN")}</td>
+                                        <td>₹{month.savings.reduce((acc, saving) => acc + Number(saving.amount), 0).toLocaleString("en-IN")}</td>
                                         <td>₹{(month.earning - month.expenses.reduce((acc, expense) => acc + Number(expense.amount), 0)).toLocaleString("en-IN")}</td>
                                         <td className="text-nowrap">
                                             <button className="btn btn-sm btn-primary me-2" onClick={() => goToExpenses(month)}>
                                                 💰 View Expenses
+                                            </button>
+                                            <button className="btn btn-sm btn-primary me-2" onClick={() => goToSavings(month)}>
+                                                💰 View Savings
                                             </button>
                                             {editMonthId === month.id ? (
                                                 <>

@@ -51,3 +51,11 @@ export const getEventsApi = async(userId) => await axiosInstance.get("/events", 
 export const deleteEventApi = async(id) => await axiosInstance.delete(`/events/${id}`);
 
 export const isServiceActive = async() => await axiosInstance.get("/auth/isActive");
+
+export const createSavingApi = async(saving) => await axiosInstance.post("/savings", saving);
+
+export const getSavingApi = async(params) => await axiosInstance.get("/savings", {params: params})
+
+export const updateSavingApi = async(id, saving) => await axiosInstance.put(`/savings/${id}`, saving)
+
+export const deleteSavingApi = async (id) => await axiosInstance.delete(`/savings/${id}`);

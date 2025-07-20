@@ -9,6 +9,7 @@ import Register from "../pages/RegisterPage";
 import MonthsPage from "../pages/MonthPage";
 import CategoryPage from "../pages/CategoryPage";
 import EventPage from "../pages/EventPage";
+import SavingsPage from "../pages/SavingPage";
 
 const AppRoutes = () => {
     return (
@@ -38,6 +39,14 @@ const AppRoutes = () => {
                     element={
                         <ProtectedRoute>
                             <ExpensesPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/savings"
+                    element={
+                        <ProtectedRoute>
+                            <SavingsPage />
                         </ProtectedRoute>
                     }
                 />
