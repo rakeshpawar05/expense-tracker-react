@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { createSavingApi, getCategoriesApi, getEventsApi } from "../../api/AxiosService";
+import { createSaving } from "../../api/savingApi";
+import { getCategories } from "../../api/categoryApi";
+import { getEvents } from "../../api/eventApi";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useAuth } from "../../Auth/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -23,22 +25,18 @@ const AddSaving = () => {
 
     const fetchCategories = async () => {
         try {
-            await getCategoriesApi(userDetails.userId, currentMonth).then((response) => {
-                response.data.push({ "name": "Add New" })
-                console.log("categories " + JSON.stringify(response.data))
+            const response = await getCategories(userDetails.userId, currentMonth);
+                response.data.push({ name: "Add New" });
                 setCategories(response.data);
-            })
         } catch (error) {
             console.error("Failed to categories ", error);
         }
     }
     const fetchEvents = async () => {
         try {
-            await getEventsApi(userDetails.userId).then((response) => {
-                // response.data.push({ "name": "Add New" })
-                console.log("events " + JSON.stringify(response.data))
+            const response = await getEvents(userDetails.userId);
+                console.log("events " + JSON.stringify(response.data));
                 setEvents(response.data);
-            })
         } catch (error) {
             console.error("Failed to categories ", error);
         }
@@ -73,10 +71,8 @@ const AddSaving = () => {
             // console.log("values "+ parseInt(values.date.toString().split('-')[1]))
             // console.log("values "+ monthList[parseInt(values.date.toString().split('-')[1]) - 1])
 
-            await createSavingApi(saving).then((response) => {
-                console.log("saving created with id " + response.data)
-                // setMonthNames(response.data);
-                // setCurrentMonth(monthReq.name)
+            await createSaving(saving).then((response) => {
+                console.log("saving created with id " + response.data);
             })
 
             resetForm();

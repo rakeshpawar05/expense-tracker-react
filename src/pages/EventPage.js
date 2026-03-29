@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Formik, Form, Field } from "formik";
-import { getEventsApi, createEventApi, deleteEventApi } from "../api/AxiosService";
+import { getEvents, createEvent, deleteEvent } from "../api/eventApi";
 import { useAuth } from "../Auth/AuthContext";
-import ExpenseList from "../components/expense/ExpenseList";
+import ExpenseFeed from "../components/expense/ExpenseFeed";
 import SavingList from "../components/saving/SavingList";
 
 const EventPage = () => {
@@ -21,7 +21,7 @@ const EventPage = () => {
     const fetchEvents = async () => {
         try {
             console.log("fetching events for user " + userDetails.userId)
-            const response = await getEventsApi(userDetails.userId);
+            const response = await getEvents(userDetails.userId);
             setEvents(response.data);
         } catch (error) {
             console.error("Failed to fetch categories:", error);
@@ -30,7 +30,7 @@ const EventPage = () => {
 
     const handleAddEvent = async (values, { resetForm }) => {
         try {
-            const response = await createEventApi({
+            const response = await createEvent({
                 name: values.name,
                 userId: userDetails.userId
             });
@@ -45,7 +45,7 @@ const EventPage = () => {
 
     const handleDeleteEvent = async (eventId) => {
         try {
-            await deleteEventApi(eventId);
+            await deleteEvent(eventId);
             setEvents(events.filter((event) => event.id !== eventId));
         } catch (error) {
             console.error("Failed to delete event:", error);
@@ -188,8 +188,11 @@ const EventPage = () => {
 
             {/* Render Expenses List for Selected Category */}
             {viewExpense && (
-                expenses.length > 0 ? (<ExpenseList expenseList={expenses} />)
-                    : <p className="alert alert-secondary text-center">No Expense to display</p>
+                expenses.length > 0 ? (
+                    <ExpenseFeed expenses={expenses} hasMore={false} loadMore={() => {}} />
+                ) : (
+                    <p className="alert alert-secondary text-center">No Expense to display</p>
+                )
             )}
 
             {/* Render Savings List for Selected Category */}

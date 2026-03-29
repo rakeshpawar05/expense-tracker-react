@@ -1,15 +1,35 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../Auth/AuthContext";
-import { useNavigate } from "react-router-dom";
 import { usePing } from "../hooks/pingContext";
 
 const Navbar = () => {
 
-  const { isLogged, logout, userDetails } = useAuth();
+  const { isLogged, logout } = useAuth();
   // const { isPinging, startPinging, stopPinging } = useKeepAlive();
   const { isBackendActive, startPinging, stopPinging, pinging } = usePing();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const closeNavbar = () => {
+    const navbarCollapse = document.querySelector(".navbar-collapse.show");
+    const navbarToggler = document.querySelector(".navbar-toggler");
+    if (!navbarCollapse) return;
+
+    const bootstrapCollapse =
+      window.bootstrap?.Collapse?.getInstance(navbarCollapse) ||
+      (window.bootstrap?.Collapse ? new window.bootstrap.Collapse(navbarCollapse) : null);
+
+    if (bootstrapCollapse) {
+      bootstrapCollapse.hide();
+    } else {
+      navbarCollapse.classList.remove("show");
+      if (navbarToggler) {
+        navbarToggler.classList.add("collapsed");
+        navbarToggler.setAttribute("aria-expanded", "false");
+      }
+    }
+  };
 
   useEffect(() => {
     if (!localStorage.getItem("jwtToken")) {
@@ -17,7 +37,12 @@ const Navbar = () => {
     }
   }, [isLogged]);
 
+  useEffect(() => {
+    closeNavbar();
+  }, [location.pathname]);
+
   const handleOnClick = () => {
+    closeNavbar();
     logout();
     navigate("/");
   };
@@ -29,7 +54,7 @@ const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container">
-        <Link className="navbar-brand" to="/dashboard">
+        <Link className="navbar-brand" to="/dashboard" onClick={closeNavbar}>
           Expense Tracker
         </Link>
         <div>
@@ -69,32 +94,32 @@ const Navbar = () => {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
-              <Link className="nav-link" to="/dashboard">
+              <Link className="nav-link" to="/dashboard" onClick={closeNavbar}>
                 Dashboard
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/months">
+              <Link className="nav-link" to="/months" onClick={closeNavbar}>
                 Months
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/expenses">
+              <Link className="nav-link" to="/expenses" onClick={closeNavbar}>
                 Expenses
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/savings">
+              <Link className="nav-link" to="/savings" onClick={closeNavbar}>
                 Savings
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/categories">
+              <Link className="nav-link" to="/categories" onClick={closeNavbar}>
                 Categories
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/events">
+              <Link className="nav-link" to="/events" onClick={closeNavbar}>
                 Events
               </Link>
             </li>
