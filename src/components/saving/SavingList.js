@@ -1,38 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Formik, Form, Field } from "formik";
 import { useAuth } from "../../Auth/AuthContext";
-import { getSavingApi, updateSavingApi, deleteSavingApi } from "../../api/AxiosService";
+import { updateSaving, deleteSaving } from "../../api/savingApi";
 import { FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa"; // Importing icons
 
-const SavingList = ({ savingList, fetch }) => {
-    const { currentMonth, userDetails } = useAuth();
+const SavingList = ({ savingList }) => {
     const [editingId, setEditingId] = useState(null);
     const [savings, setSavings] = useState(savingList);
 
     useEffect(() => {
-        console.log("param" + fetch)
-        if(fetch){
-            fetchSavings();
-        } else {
-            console.log("not fetching savings...")
-        }
-    }, [])
-
-    // useEffect(() => {
-    const fetchSavings = async () => {
-        try {
-            console.log("fetching savings for month " + currentMonth);
-            const params = {
-                "monthName": currentMonth,
-                "userId": userDetails.userId
-            };
-            const response = await getSavingApi(params);
-            console.log("savings " + JSON.stringify(response.data));
-            setSavings(response.data);
-        } catch (error) {
-            console.error("Failed to fetch savings", error);
-        }
-    };
+        setSavings(savingList);
+    }, [savingList]);
 
     //     fetchExpenses();
     // }, [currentMonth]);
@@ -40,11 +18,10 @@ const SavingList = ({ savingList, fetch }) => {
     const onUpdate = async (id, values) => {
         try {
             const updatedSaving = { ...values, id };
-            await updateSavingApi(id, updatedSaving);
+            await updateSaving(id, updatedSaving);
             setSavings((prev) =>
                 prev.map((exp) => (exp.id === id ? { ...exp, ...values } : exp))
             );
-            // expenses.map((exp) => (exp.id === id ? { ...exp, ...values } : exp))
             setEditingId(null);
         } catch (error) {
             console.error("Failed to update", error);
@@ -53,9 +30,8 @@ const SavingList = ({ savingList, fetch }) => {
 
     const onDelete = async (id) => {
         try {
-            await deleteSavingApi(id);
+            await deleteSaving(id);
             setSavings((prevSavings) => prevSavings.filter((exp) => exp.id !== id));
-            // expenses.filter((exp) => exp.id !== id)
         } catch (error) {
             console.error("Failed to delete", error);
         }

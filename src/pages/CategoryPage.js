@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Formik, Form, Field } from "formik";
-import { getCategoriesApi, createCategoryApi, deleteCategoryApi } from "../api/AxiosService";
+import { getCategories, createCategory, deleteCategory } from "../api/categoryApi";
 import { useAuth } from "../Auth/AuthContext";
-import ExpenseList from "../components/expense/ExpenseList";
+import ExpenseFeed from "../components/expense/ExpenseFeed";
 import SavingList from "../components/saving/SavingList";
 
 const CategoryPage = () => {
@@ -21,7 +21,7 @@ const CategoryPage = () => {
     const fetchCategories = async () => {
         try {
             console.log("fetching category for month " + currentMonth)
-            const response = await getCategoriesApi(userDetails.userId, currentMonth);
+            const response = await getCategories(userDetails.userId, currentMonth);
             setCategories(response.data);
             console.log("fetched categories ..... " + JSON.stringify(response.data))
         } catch (error) {
@@ -31,7 +31,7 @@ const CategoryPage = () => {
 
     const handleAddCategory = async (values, { resetForm }) => {
         try {
-            const response = await createCategoryApi({
+            const response = await createCategory({
                 name: values.categoryName,
                 userId: userDetails.userId,
                 monthName: values.month
@@ -46,7 +46,7 @@ const CategoryPage = () => {
 
     const handleDeleteCategory = async (categoryId) => {
         try {
-            await deleteCategoryApi(categoryId);
+            await deleteCategory(categoryId);
             setCategories(categories.filter((category) => category.id !== categoryId));
         } catch (error) {
             console.error("Failed to delete category:", error);
@@ -183,8 +183,11 @@ const CategoryPage = () => {
 
             {/* Render Expenses List for Selected Category */}
             {viewExpense && (
-                expenses.length > 0 ? (<ExpenseList expenseList={expenses} fetch={false}/>)
-                    : <p className="alert alert-secondary text-center">No Expense to display</p>
+                expenses.length > 0 ? (
+                    <ExpenseFeed expenses={expenses} hasMore={false} loadMore={() => {}} />
+                ) : (
+                    <p className="alert alert-secondary text-center">No Expense to display</p>
+                )
             )}
 
             {/* Render Saving List for Selected Category */}

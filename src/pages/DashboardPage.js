@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { getFullUser, getMonthNamesApi, getMonthByName, createMonthApi } from "../api/AxiosService";
+import { getDashboardData } from "../api/dashboardApi";
+import { getMonthNamesApi } from "../api/monthApi";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useAuth } from "../Auth/AuthContext";
 import TopFiveExpenses from "../components/expense/TopFiveExpenses";
@@ -22,21 +23,35 @@ const DashboardPage = () => {
   const yearList = ["2025", "2026", "2027", "2028"];
 
   useEffect(() => {
-    console.log("month name " + currentMonth + " type " + typeof (currentMonth))
-    fetchDetails({ month: currentMonth })
-  }, [])
+    const shouldLoad = currentMonth && userDetails?.userId;
+    if (shouldLoad) {
+      setLoading(true);
+      fetchDetails({ month: currentMonth });
+    }
+  }, [currentMonth, userDetails?.userId]);
 
   const fetchDetails = async (values) => {
     try {
-      console.log("valeus " + JSON.stringify(values))
-      await getFullUser(userDetails.userId).then((response) => {
-        console.log("respone ==== " + JSON.stringify(response.data))
-        // setCurrentMonth(values.month)
-        response.data.months.length > 0 && updateSummary(response.data.months.filter(month => month.name === values.month)[0].expenses,
-          response.data.months.filter(month => month.name === values.month)[0].earning)
-      })
+      const response = await getDashboardData({
+        userId: userDetails.userId,
+        monthName: values.month,
+      });
+      const data = response.data;
+      console.log("dashboard data " + JSON.stringify(data));
+      if (data) {
+        setSummary({
+          earnings: data.totalEarning || 0,
+          expenses: data.totalExpense || 0,
+          balance: data.balance || 0,
+        });
+        const totalExpenses = data.totalExpense || 0;
+        const totalEarnings = data.totalEarning || 0;
+        setSpendingPercentage(
+          totalEarnings > 0 ? (totalExpenses / totalEarnings) * 100 : 0
+        );
+      }
     } catch (error) {
-      console.error("Failed to fetch amount:", error);
+      console.error("Failed to fetch dashboard data:", error);
     } finally {
       setLoading(false);
     }
@@ -57,19 +72,16 @@ const DashboardPage = () => {
   useEffect(() => {
     const fetchMonthNames = async () => {
       try {
-        await getMonthNamesApi(userDetails.userId).then((response) => {
-          setListOfAvailableMonths(response.data);
-          console.log("name list " + listOfAvailableMonths)
-        });
+        const response = await getMonthNamesApi(userDetails.userId);
+        setListOfAvailableMonths(response.data);
       } catch (error) {
-        console.error("Failed to fetch amount:", error);
+        console.error("Failed to fetch month names:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchMonthNames();
-    // fetchDetails({month: currentMonth});
   }, [userDetails.userId, currentMonth]);
 
   // const handleAddMonth = async (values, { resetForm }) => {
@@ -98,22 +110,17 @@ const DashboardPage = () => {
 
       {/* Month Selector Form */}
       <Formik
-        initialValues={{ month: "" }}
-        onSubmit={values => fetchDetails(values)}
+        initialValues={{ month: currentMonth || "" }}
+        enableReinitialize
+        onSubmit={(values) => {
+          const selectedMonth = values.month || currentMonth;
+          if (selectedMonth) {
+            setCurrentMonth(selectedMonth);
+            fetchDetails({ month: selectedMonth });
+          }
+        }}
       >
         {() => (
-          // <Form className="mb-4">
-          //   <div className="form-group ">
-          //     <label htmlFor="month" className="form-label col-md-4">Select Month</label>
-          //     <Field as="select" id="month" name="month col-md-4" className="form-control">
-          //       <option value="" className="col-md-4">-- Select a month --</option>
-          //       {listOfAvailableMonths.map((month, index) => (
-          //         <option key={index} value={month}>{month}</option>
-          //       ))}
-          //     </Field>
-          //   </div>
-          //   <button type="submit" className="btn btn-primary w-100 mt-3">Submit</button>
-          // </Form>
           <Form className="mb-4 d-flex align-items-center gap-3">
             <div className="form-group mb-0">
               <label htmlFor="month" className="form-label me-2">Select Month:</label>
@@ -126,7 +133,6 @@ const DashboardPage = () => {
             </div>
             <button type="submit" className="btn btn-primary">Submit</button>
           </Form>
-
         )}
       </Formik>
 

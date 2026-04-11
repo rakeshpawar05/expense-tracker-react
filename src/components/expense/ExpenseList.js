@@ -1,61 +1,39 @@
 import React, { useEffect, useState } from "react";
 import { Formik, Form, Field } from "formik";
 import { useAuth } from "../../Auth/AuthContext";
-import { getExpenseApi, updateExpenseApi, deleteExpenseApi } from "../../api/AxiosService";
+import { updateExpense, deleteExpense } from "../../api/expenseApi";
 import { FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa"; // Importing icons
 
-const ExpenseList = ({ expenseList, fetch }) => {
-    const { currentMonth, userDetails } = useAuth();
+const ExpenseList = ({ expenseList }) => {
+    const { currentMonth } = useAuth();
     const [editingId, setEditingId] = useState(null);
     const [expenses, setExpenses] = useState(expenseList);
 
+    // keep internal state in sync when parent passes new list
     useEffect(() => {
-        console.log("param" + fetch)
-        if(fetch){
-            fetchExpenses();
-        } else {
-            console.log("not fetching expenses...")
-        }
-    }, [])
-
-    // useEffect(() => {
-    const fetchExpenses = async () => {
-        try {
-            console.log("fetching expenses for month " + currentMonth);
-            const params = {
-                "monthName": currentMonth,
-                "userId": userDetails.userId
-            };
-            const response = await getExpenseApi(params);
-            console.log("expenses " + JSON.stringify(response.data));
-            setExpenses(response.data);
-        } catch (error) {
-            console.error("Failed to fetch expenses", error);
-        }
-    };
-
-    //     fetchExpenses();
-    // }, [currentMonth]);
+        setExpenses(expenseList);
+    }, [expenseList]);
 
     const onUpdate = async (id, values) => {
         try {
             const updatedExpense = { ...values, id };
-            await updateExpenseApi(id, updatedExpense);
+            await updateExpense(id, updatedExpense);
             setExpenses((prev) =>
                 prev.map((exp) => (exp.id === id ? { ...exp, ...values } : exp))
             );
-            // expenses.map((exp) => (exp.id === id ? { ...exp, ...values } : exp))
             setEditingId(null);
         } catch (error) {
             console.error("Failed to update", error);
         }
     };
 
+    //     fetchExpenses();
+    // }, [currentMonth]);
+
     const onDelete = async (id) => {
         try {
-            await deleteExpenseApi(id);
+            await deleteExpense(id);
             setExpenses((prevExpenses) => prevExpenses.filter((exp) => exp.id !== id));
-            // expenses.filter((exp) => exp.id !== id)
         } catch (error) {
             console.error("Failed to delete", error);
         }

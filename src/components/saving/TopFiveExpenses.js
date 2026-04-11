@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../Auth/AuthContext";
-import { getTop5Expenses } from "../../api/AxiosService";
+import { getTop5Expenses } from "../../api/expenseApi";
 import { FaList } from "react-icons/fa";
 
 const TopFiveExpenses = () => {
