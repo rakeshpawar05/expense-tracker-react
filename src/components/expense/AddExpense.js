@@ -4,56 +4,49 @@ import { getCategories } from "../../api/categoryApi";
 import { getEvents } from "../../api/eventApi";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useAuth } from "../../Auth/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { Modal, Button } from "react-bootstrap";
 
-const AddExpense = ({ onExpenseCreate }) => {
-
-    // const {currentMonth} = useAuth();
+const AddExpense = ({ show = false, onHide = () => {}, onExpenseCreate = () => {} }) => {
     const { currentMonth, setCurrentMonth, userDetails } = useAuth();
-    const navigate = useNavigate();
 
     const monthList = ["January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"];
 
     const [categories, setCategories] = useState([]);
     const [events, setEvents] = useState([]);
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        fetchCategories();
-        fetchEvents();
-    }, [currentMonth]);
+        if (show) {
+            fetchCategories();
+            fetchEvents();
+        }
+    }, [currentMonth, show]);
 
     const fetchCategories = async () => {
         try {
             const response = await getCategories(userDetails.userId, currentMonth);
-                response.data.push({ name: "Add New" });
-                setCategories(response.data);
+            response.data.push({ name: "Add New" });
+            setCategories(response.data);
         } catch (error) {
-            console.error("Failed to categories ", error);
+            console.error("Failed to fetch categories: ", error);
         }
-    }
+    };
+
     const fetchEvents = async () => {
         try {
             const response = await getEvents(userDetails.userId);
-                console.log("events " + JSON.stringify(response.data));
-                setEvents(response.data);
+            setEvents(response.data);
         } catch (error) {
-            console.error("Failed to categories ", error);
+            console.error("Failed to fetch events: ", error);
         }
-    }
+    };
 
-
-    // Function to add an expense
     const handleAddExpense = async (values, { resetForm }) => {
         try {
-            // const response = await axios.post(`${API_BASE_URL}/expenses`, values);
-            // setExpenses([...expenses, response.data]); // Assuming response contains the added expense
-
-            // Update summary
-            // updateSummary([...expenses, response.data]);
-
+            setSaving(true);
             const expenseMonthName = monthList[parseInt(values.date.toString().split('-')[1]) - 1] + "," +
-                values.date.toString().split('-')[0]
+                values.date.toString().split('-')[0];
 
             const expense = {
                 description: values.name,
@@ -63,13 +56,7 @@ const AddExpense = ({ onExpenseCreate }) => {
                 categoryName: values.categoryName.trim(),
                 eventName: values.eventName,
                 userId: userDetails.userId
-            }
-
-            console.log("values " + JSON.stringify(expense))
-            // console.log("values "+ values.date.toString())
-            // console.log("values "+ values.date.toString().split('-')[1])
-            // console.log("values "+ parseInt(values.date.toString().split('-')[1]))
-            // console.log("values "+ monthList[parseInt(values.date.toString().split('-')[1]) - 1])
+            };
 
             const response = await createExpense(expense);
             const result = response?.data;
@@ -81,31 +68,26 @@ const AddExpense = ({ onExpenseCreate }) => {
                         id: result,
                     };
 
-            console.log("expense created", createdExpense);
-
             if (onExpenseCreate) {
                 onExpenseCreate(createdExpense);
             }
 
             resetForm();
-            goToExpenses(expenseMonthName);
+            onHide();
         } catch (error) {
             console.error("Failed to add expense:", error);
             alert("Failed to add expense. Please try again.");
+        } finally {
+            setSaving(false);
         }
     };
 
-    const goToExpenses = (expenseMonthName) => {
-        // setCurrentMonth(expenseMonthName);
-        console.log("navigating...")
-        navigate(`/expenses`, { replace: true });
-    };
     return (
-        <div className="container mt-4">
-
-            {/* Add Expense Section */}
-            <div className="mb-4">
-                <h4>Add Expense</h4>
+        <Modal show={show} onHide={onHide} contentClassName="expense-modal">
+            <Modal.Header closeButton>
+                <Modal.Title>Add New Expense</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
                 <Formik
                     initialValues={{
                         "name": "",
@@ -117,28 +99,19 @@ const AddExpense = ({ onExpenseCreate }) => {
                     onSubmit={handleAddExpense}
                 >
                     {({ values }) => (
-
-                        <Form className="row g-3">
-                            <div className="col-md-4">
-                                <Field name="name" className="form-control" placeholder="Expense Description" />
+                        <Form>
+                            <div className="form-group mb-3">
+                                <label className="form-label">Description</label>
+                                <Field
+                                    name="name"
+                                    className="form-control"
+                                    placeholder="Expense description"
+                                />
                             </div>
-                            <div className="col-md-2">
-                                {/* <Field
-                                as="select"
-                                // id="year"
-                                name="categoryName"
-                                className="form-control"
-                            >
-                                <option value="">-- Select a category --</option>
-                                {categories.length > 0 ??(
-                                categories.map((category, index) => (
-                                    <option key={index} value={category.name}>
-                                        {category.name}
-                                    </option>
-                                )))}
-                            </Field> */}
 
-                                {categories.length > 0 && values.categoryName === "" ? (
+                            <div className="form-group mb-3">
+                                <label className="form-label">Category</label>
+                                {values.categoryName === "" ? (
                                     <Field as="select" name="categoryName" className="form-control">
                                         <option value="">-- Select a category --</option>
                                         {categories.map((category, index) => (
@@ -146,63 +119,72 @@ const AddExpense = ({ onExpenseCreate }) => {
                                                 {category.name}
                                             </option>
                                         ))}
+                                        <option value="Add New">Add New</option>
                                     </Field>
                                 ) : (
-                                    values.categoryName === "Add New" ? (
-                                        <Field
-                                            type="text"
-                                            name="categoryName"
-                                            className="form-control"
-                                            placeholder="Enter category"
-                                            value={" "}
-                                        />
-                                    ) :
-                                        (
-                                            <Field
-                                                type="text"
-                                                name="categoryName"
-                                                className="form-control"
-                                                placeholder="Enter category"
-                                            // value={values.categoryName}
-                                            />
-                                        )
+                                    <Field
+                                        type="text"
+                                        name="categoryName"
+                                        className="form-control"
+                                        placeholder={values.categoryName === "Add New" ? "Enter new category name" : "Category"}
+                                    />
                                 )}
-
                             </div>
 
-                            {events.length > 0 && (
-                                <div className="col-md-2">
-
+                            <div className="form-group mb-3">
+                                <label className="form-label">Event</label>
+                                {values.eventName === "" ? (
                                     <Field as="select" name="eventName" className="form-control">
-                                        <option value="">-- Select a Event --</option>
+                                        <option value="">-- Select an event --</option>
                                         {events.map((event, index) => (
                                             <option key={index} value={event.name}>
                                                 {event.name}
                                             </option>
                                         ))}
+                                        <option value="Add New">Add New</option>
                                     </Field>
-
-                                </div>
-                            )}
-
-                            <div className="col-md-2">
-                                <Field name="amount" type="number" className="form-control" placeholder="Amount" />
+                                ) : (
+                                    <Field
+                                        type="text"
+                                        name="eventName"
+                                        className="form-control"
+                                        placeholder={values.eventName === "Add New" ? "Enter new event name" : "Event"}
+                                    />
+                                )}
                             </div>
-                            {/* <div className="col-md-2">
-                            <Field name="month" className="form-control" placeholder="month" />
-                        </div> */}
-                            <div className="col-md-2">
-                                <Field name="date" type="date" className="form-control" />
+
+                            <div className="form-group mb-3">
+                                <label className="form-label">Amount</label>
+                                <Field
+                                    name="amount"
+                                    type="number"
+                                    className="form-control"
+                                    placeholder="Amount"
+                                />
                             </div>
-                            <div className="col-md-2">
-                                <button type="submit" className="btn btn-success w-100">Add Expense</button>
+
+                            <div className="form-group mb-3">
+                                <label className="form-label">Date</label>
+                                <Field
+                                    name="date"
+                                    type="date"
+                                    className="form-control"
+                                />
+                            </div>
+
+                            <div className="modal-footer d-flex gap-2">
+                                <Button variant="secondary" onClick={onHide}>
+                                    Cancel
+                                </Button>
+                                <Button variant="primary" type="submit" disabled={saving}>
+                                    {saving ? "Adding..." : "Add Expense"}
+                                </Button>
                             </div>
                         </Form>
                     )}
                 </Formik>
-            </div>
-
-        </div>
+            </Modal.Body>
+        </Modal>
     );
 };
 

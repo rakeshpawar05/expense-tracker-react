@@ -1,0 +1,61 @@
+/* Chatbot Page Container */
+.chatbot-page {
+  padding: 0;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #f5f7fb;
+}
+
+/* Chatbot Page Header */
+.chatbot-page-header {
+  padding: 30px 30px 20px 30px;
+  background: #f5f7fb;
+  flex-shrink: 0;
+}
+
+.chatbot-page-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 8px;
+}
+
+.chatbot-page-subtitle {
+  font-size: 14px;
+  color: #868e96;
+  margin: 0;
+}
+
+/* Chatbot Page Container (Full Height) */
+.chatbot-page-container {
+  flex: 1;
+  display: flex;
+  background: #ffffff;
+  margin: 0 30px 30px 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.chatbot-page-container .chatbot-container {
+  width: 100%;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .chatbot-page {
+    padding: 16px;
+  }
+
+  .chatbot-page-header h1 {
+    font-size: 24px;
+  }
+
+  .chatbot-page-container {
+    border-radius: 8px;
+  }
+}

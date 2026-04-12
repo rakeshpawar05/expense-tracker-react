@@ -3,9 +3,10 @@ import AddSaving from "../components/saving/AddSaving";
 import SavingList from "../components/saving/SavingList";
 import { useAuth } from "../Auth/AuthContext";
 import { getSavings } from "../api/savingApi";
+import { FaPlus } from "react-icons/fa";
+import "./../styles/savingpage.css";
 
 const SavingsPage = () => {
-
   const { currentMonth, userDetails } = useAuth();
 
   const [toggleView, setToggleView] = useState(true);
@@ -13,14 +14,9 @@ const SavingsPage = () => {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
 
-  // useEffect(() => {
-  //   setToggleView(true)
-  //   console.log("toggle")
-  // }, [])
-
   const handleOnClick = () => {
-    setToggleView(!toggleView)
-  }
+    setToggleView(!toggleView);
+  };
 
   const fetchSavings = async (pageNum = 0) => {
     try {
@@ -32,7 +28,7 @@ const SavingsPage = () => {
       };
       const response = await getSavings(params);
       if (response.data && response.data.length > 0) {
-        setSavings((prev) => [...prev, ...response.data]);
+        setSavings((prev) => (pageNum === 0 ? response.data : [...prev, ...response.data]));
         setHasMore(response.data.length === 20);
       } else {
         setHasMore(false);
@@ -53,20 +49,27 @@ const SavingsPage = () => {
   }, [currentMonth]);
 
   return (
-    <div className="container mt-4">
-      <h1>Savings</h1>
-      <div className="row g-3">
-        <p className="col-md-10">Track your Savings for {currentMonth}  here!</p>
-
-        <button className="col-md-2 btn btn-success " onClick={() => handleOnClick()}>{toggleView ? <span>Add Saving</span> : <span>View Saving</span>}</button>
+    <div className="savings-page">
+      {/* Header */}
+      <div className="page-header">
+        {toggleView && (
+          <button
+            className="btn-action-primary"
+            onClick={() => handleOnClick()}
+          >
+            <FaPlus /> Add Saving
+          </button>
+        )}
       </div>
+
+      {/* Content */}
       {toggleView === true ? (
         <>
           <SavingList savingList={savings} />
           {hasMore && (
-            <div className="d-grid mt-3">
+            <div className="load-more-section">
               <button
-                className="btn btn-outline-primary"
+                className="btn-load-more"
                 onClick={() => {
                   const next = page + 1;
                   setPage(next);
@@ -79,11 +82,16 @@ const SavingsPage = () => {
           )}
         </>
       ) : (
-        <AddSaving />
+        <div className="add-form-container">
+          <AddSaving onSuccess={() => setToggleView(true)} />
+          <button
+            className="btn-secondary"
+            onClick={() => setToggleView(true)}
+          >
+            Back to Savings
+          </button>
+        </div>
       )}
-      {/* <AddExpense />
-      <br />
-      <ExpenseList /> */}
     </div>
   );
 };

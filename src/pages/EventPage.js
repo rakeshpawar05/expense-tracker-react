@@ -4,204 +4,196 @@ import { getEvents, createEvent, deleteEvent } from "../api/eventApi";
 import { useAuth } from "../Auth/AuthContext";
 import ExpenseFeed from "../components/expense/ExpenseFeed";
 import SavingList from "../components/saving/SavingList";
+import { FaPlus, FaTrash, FaEye } from "react-icons/fa";
+import "./../styles/eventpage.css";
 
 const EventPage = () => {
-    const { userDetails} = useAuth();
-    const [events, setEvents] = useState([]);
-    const [viewExpense, setViewExpense] = useState(false);
-    const [expenses, setExpenses] = useState([]);
-    const [viewSaving, setViewSaving] = useState(false);
-    const [savings, setSavings] = useState([]);
-    const [displayId, setDisplayId] = useState(null);
+  const { userDetails } = useAuth();
+  const [events, setEvents] = useState([]);
+  const [viewExpense, setViewExpense] = useState(false);
+  const [expenses, setExpenses] = useState([]);
+  const [viewSaving, setViewSaving] = useState(false);
+  const [savings, setSavings] = useState([]);
+  const [displayId, setDisplayId] = useState(null);
 
-    useEffect(() => {
-        fetchEvents();
-    }, []);
+  useEffect(() => {
+    fetchEvents();
+  }, []);
 
-    const fetchEvents = async () => {
-        try {
-            console.log("fetching events for user " + userDetails.userId)
-            const response = await getEvents(userDetails.userId);
-            setEvents(response.data);
-        } catch (error) {
-            console.error("Failed to fetch categories:", error);
-        }
-    };
+  const fetchEvents = async () => {
+    try {
+      const response = await getEvents(userDetails.userId);
+      setEvents(response.data);
+    } catch (error) {
+      console.error("Failed to fetch events:", error);
+    }
+  };
 
-    const handleAddEvent = async (values, { resetForm }) => {
-        try {
-            const response = await createEvent({
-                name: values.name,
-                userId: userDetails.userId
-            });
-            console.log("events " + response.data)
-            // setEvents([...events, response.data]);
-            fetchEvents();
-            resetForm();
-        } catch (error) {
-            console.error("Failed to add events:", error);
-        }
-    };
+  const handleAddEvent = async (values, { resetForm }) => {
+    try {
+      await createEvent({
+        name: values.name,
+        userId: userDetails.userId
+      });
+      fetchEvents();
+      resetForm();
+    } catch (error) {
+      console.error("Failed to add event:", error);
+    }
+  };
 
-    const handleDeleteEvent = async (eventId) => {
-        try {
-            await deleteEvent(eventId);
-            setEvents(events.filter((event) => event.id !== eventId));
-        } catch (error) {
-            console.error("Failed to delete event:", error);
-        }
-    };
+  const handleDeleteEvent = async (eventId) => {
+    try {
+      await deleteEvent(eventId);
+      setEvents(events.filter((event) => event.id !== eventId));
+    } catch (error) {
+      console.error("Failed to delete event:", error);
+    }
+  };
 
-    return (
-        <div className="container mt-5">
-            <h2 className="text-center mb-4">Manage Event</h2>
+  const toggleExpenseView = (event) => {
+    if (viewExpense && displayId === event.id) {
+      setDisplayId(null);
+      setViewExpense(false);
+    } else {
+      setViewExpense(true);
+      setDisplayId(event.id);
+      setExpenses(event.expenses || []);
+    }
+  };
 
-            {/* Add Event Form */}
-            <Formik
-                initialValues={{ name: "" }}
-                onSubmit={handleAddEvent}
-            >
-                {() => (
-                    <Form className="row g-4">
-                        <div className="form-group col-md-5">
-                            {/* <label htmlFor="categoryName" className="form-label">Category Name</label> */}
-                            <Field name="name" id="name" className="form-control" placeholder="Enter Event name" />
-                        </div>
-                        {/* <div className="form-group col-md-5">
-                            {/* <label htmlFor="month" className="form-label">Select Month</label> }
-                            <Field as="select" id="month" name="month" className="form-control">
-                                <option value="">-- Select a month --</option>
-                                {listOfAvailableMonths.map((month, index) => (
-                                    <option key={index} value={month}>{month}</option>
-                                ))}
-                            </Field>
-                        </div> */}
-                        <div className="form-group col-md-2">
-                            <button type="submit" className="btn btn-primary w-100">Add Event</button>
-                        </div>
-                    </Form>
-                )}
-            </Formik>
+  const toggleSavingView = (event) => {
+    if (viewSaving && displayId === event.id) {
+      setDisplayId(null);
+      setViewSaving(false);
+    } else {
+      setViewSaving(true);
+      setDisplayId(event.id);
+      setSavings(event.savings || []);
+    }
+  };
 
-            {/* Category List
-      <ul className="list-group mt-4">
-        {categories.map((category) => (
-          <li key={category.id} className="list-group-item d-flex justify-content-between align-items-center">
-            {category.name}
-            {<button className="btn btn-danger btn-sm" onClick={() => handleDeleteCategory(category.id)}>Delete</button> }
-          </li>
-        ))}
-      </ul> */}
+  return (
+    <div className="event-page">
+      {/* Add Event Form */}
+      <div className="add-form-card">
+        <h3 className="form-title">Add New Event</h3>
+        <Formik
+          initialValues={{ name: "" }}
+          onSubmit={handleAddEvent}
+        >
+          {() => (
+            <Form className="event-form">
+              <div className="form-group">
+                <label>Event Name</label>
+                <Field
+                  name="name"
+                  className="form-input"
+                  placeholder="Enter event name"
+                />
+              </div>
+              <button type="submit" className="btn-submit">
+                <FaPlus /> Add Event
+              </button>
+            </Form>
+          )}
+        </Formik>
+      </div>
 
-            {/* Category Table */}
-            <table className="table mt-4">
-                <thead className="table-dark">
-                    <tr>
-                        <th>Event Name</th>
-                        <th>Total Expense</th>
-                        <th>Total Saving</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {
-                        events.length > 0 ? (
-                            events.map((event) => (
-                                <tr key={event.id}>
-                                    <td>{event.name}</td>
-                                    <td>₹{event.expenses ?
-                                        event.expenses.reduce((acc, expense) => acc + Number(expense.amount), 0).toLocaleString("en-IN")
-                                        : 0}</td>
-                                        <td>₹{event.savings ?
-                                        event.savings.reduce((acc, saving) => acc + Number(saving.amount), 0).toLocaleString("en-IN")
-                                        : 0}</td>
-                                    <td>
-                                        {/* <button
-                                    className="btn btn-primary btn-sm me-2"
-                                // onClick={() => navigate(`/expenses/${category.id}`)}
-                                >
-                                    View Expenses
-                                </button> */}
+      {/* Events Table */}
+      <div className="events-table-card">
+        {events.length > 0 ? (
+          <div className="events-list">
+            {events.map((event) => (
+              <div key={event.id} className="event-item">
+                <div className="event-info">
+                  <h4 className="event-name">{event.name}</h4>
+                  <div className="event-stats">
+                    <div className="stat">
+                      <span className="stat-label">Expenses</span>
+                      <span className="stat-amount">
+                        ₹
+                        {event.expenses
+                          ? event.expenses
+                              .reduce((acc, expense) => acc + Number(expense.amount), 0)
+                              .toLocaleString("en-IN")
+                          : 0}
+                      </span>
+                    </div>
+                    <div className="stat">
+                      <span className="stat-label">Savings</span>
+                      <span className="stat-amount">
+                        ₹
+                        {event.savings
+                          ? event.savings
+                              .reduce((acc, saving) => acc + Number(saving.amount), 0)
+                              .toLocaleString("en-IN")
+                          : 0}
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
-                                        <button
-                                            className="btn btn-primary btn-sm me-2"
-                                            onClick={() => {
-                                                console.log(event.expenses)
-                                                if (viewExpense && displayId === event.id ) {
-                                                    setViewExpense(false)
-                                                    setDisplayId(null)
-                                                    // setExpenses([])
-                                                } else {
+                <div className="event-actions">
+                  <button
+                    className="btn-action btn-view"
+                    onClick={() => toggleExpenseView(event)}
+                    title="View Expenses"
+                  >
+                    <FaEye />
+                    {viewExpense && displayId === event.id ? "Hide" : "Expenses"}
+                  </button>
+                  <button
+                    className="btn-action btn-view"
+                    onClick={() => toggleSavingView(event)}
+                    title="View Savings"
+                  >
+                    <FaEye />
+                    {viewSaving && displayId === event.id ? "Hide" : "Savings"}
+                  </button>
+                  <button
+                    className="btn-action btn-delete"
+                    onClick={() => handleDeleteEvent(event.id)}
+                    title="Delete"
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state">
+            <p>No events found. Create one to get started!</p>
+          </div>
+        )}
+      </div>
 
-                                                    setExpenses(
-                                                        event.expenses ? event.expenses : []
-                                                    );
-                                                    setViewExpense(true)
-                                                    setDisplayId(event.id)
-                                                }
-                                            }}
-                                        >
-                                            {(viewExpense && displayId === event.id) ? "Hide Expenses" : "View Expenses"}
-                                        </button>
-
-                                        <button
-                                            className="btn btn-primary btn-sm me-2"
-                                            onClick={() => {
-                                                console.log(event.savings)
-                                                if (viewSaving && displayId === event.id ) {
-                                                    setViewSaving(false)
-                                                    setDisplayId(null)
-                                                    // setExpenses([])
-                                                } else {
-
-                                                    setSavings(
-                                                        event.savings ? event.savings : []
-                                                    );
-                                                    setViewSaving(true)
-                                                    setDisplayId(event.id)
-                                                }
-                                            }}
-                                        >
-                                            {(viewSaving && displayId === event.id) ? "Hide Savings" : "View Savings"}
-                                        </button>
-
-                                        {/* </td> */}
-                                        {/* <td> */}
-                                        <button
-                                            className="btn btn-primary btn-sm"
-                                            onClick={() => handleDeleteEvent(event.id)}
-                                        >
-                                            Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                            )
-                            )) :
-                            <tr>
-                                <td colSpan="3" className="text-center text-muted fw-bold">
-                                    No events found.
-                                </td>
-                            </tr>
-                    }
-                </tbody>
-            </table>
-
-            {/* Render Expenses List for Selected Category */}
-            {viewExpense && (
-                expenses.length > 0 ? (
-                    <ExpenseFeed expenses={expenses} hasMore={false} loadMore={() => {}} />
-                ) : (
-                    <p className="alert alert-secondary text-center">No Expense to display</p>
-                )
-            )}
-
-            {/* Render Savings List for Selected Category */}
-            {viewSaving && (
-                savings.length > 0 ? (<SavingList savingList={savings} />)
-                    : <p className="alert alert-secondary text-center">No Saving to display</p>
-            )}
+      {/* Expenses List */}
+      {viewExpense && displayId && (
+        <div className="detail-section">
+          <h3>Expenses for {events.find(e => e.id === displayId)?.name}</h3>
+          {expenses.length > 0 ? (
+            <ExpenseFeed expenses={expenses} hasMore={false} loadMore={() => {}} />
+          ) : (
+            <p className="empty-message">No expenses found.</p>
+          )}
         </div>
-    );
+      )}
+
+      {/* Savings List */}
+      {viewSaving && displayId && (
+        <div className="detail-section">
+          <h3>Savings for {events.find(e => e.id === displayId)?.name}</h3>
+          {savings.length > 0 ? (
+            <SavingList savingList={savings} fetch={false} />
+          ) : (
+            <p className="empty-message">No savings found.</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default EventPage;

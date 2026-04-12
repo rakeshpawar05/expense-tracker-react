@@ -1,28 +1,42 @@
 import React, { useState } from "react";
 import AddMonth from "../components/month/AddMonth";
 import MonthList from "../components/month/MonthList";
-import { useAuth } from "../Auth/AuthContext";
+import { FaPlus } from "react-icons/fa";
+import "./../styles/monthpage.css";
 
 const MonthsPage = () => {
+  const [toggleView, setToggleView] = useState(true);
 
-    const [toggleView, setToggleView] = useState(true);
+  return (
+    <div className="months-page">
+      {/* Header */}
+      <div className="page-header">
+        {toggleView && (
+          <button
+            className="btn-action-primary"
+            onClick={() => setToggleView(!toggleView)}
+          >
+            <FaPlus /> Add Month
+          </button>
+        )}
+      </div>
 
-    return (
-        <div className="container mt-4">
-            <h1>Months</h1>
-            <div className="row g-3">
-                <p className="col-md-10">Track your months here!</p>
-                <button type="submit" className=" col-md-2 btn btn-success" onClick={()=> setToggleView(!toggleView)}>
-                    {toggleView ? <span>Add Month</span> : <span>View Months</span>}</button>
-            </div>
-
-        {toggleView ? <MonthList /> : <AddMonth />}
-
-            {/* <AddMonth />
-            <br />
-            <MonthList /> */}
+      {/* Content */}
+      {toggleView ? (
+        <MonthList />
+      ) : (
+        <div className="add-form-container">
+          <AddMonth onSuccess={() => setToggleView(true)} />
+          <button
+            className="btn-secondary"
+            onClick={() => setToggleView(true)}
+          >
+            Back to Months
+          </button>
         </div>
-    );
+      )}
+    </div>
+  );
 };
 
 export default MonthsPage;

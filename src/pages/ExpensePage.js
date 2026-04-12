@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import AddExpense from "../components/expense/AddExpense";
 import ExpenseFeed from "../components/expense/ExpenseFeed";
 import { useAuth } from "../Auth/AuthContext";
 import { getExpenses } from "../api/expenseApi";
 import { getMonthNamesApi } from "../api/monthApi";
+import { FaPlus, FaChevronDown } from "react-icons/fa";
+import "./../styles/expensepage.css";
 
 const ExpensesPage = () => {
-
   const { currentMonth, setCurrentMonth, userDetails } = useAuth();
 
   const [toggleView, setToggleView] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [expenses, setExpenses] = useState([]);
   const [hasMore, setHasMore] = useState(true);
@@ -27,68 +29,66 @@ const ExpensesPage = () => {
     toDate: "",
   });
 
-  const handleOnClick = () => {
-    const next = !toggleView;
-    setToggleView(next);
-    setInfoMessage("");
-    // refresh list whenever switching to view mode to keep data fresh
-    if (next) {
-      setExpenses([]);
-      setCursor(null);
-      setHasMore(true);
-      fetchExpenses(appliedFilters, null);
-    }
+  const handleOpenAddModal = () => {
+    setShowAddModal(true);
   };
 
-  const fetchExpenses = async (filters = appliedFilters, cursorValue = null) => {
-    try {
-      const params = {
-        userId: userDetails.userId,
-        categoryName: filters.categoryName || undefined,
-        expenseName: filters.description || undefined,
-        fromDate: filters.fromDate || undefined,
-        toDate: filters.toDate || undefined,
-        limit: 20,
-        cursor: cursorValue || undefined,
-      };
+  const handleCloseAddModal = () => {
+    setShowAddModal(false);
+  };
 
-      if (!filters.fromDate && !filters.toDate) {
-        params.monthName = filters.monthName || currentMonth || undefined;
-      }
+  const fetchExpenses = useCallback(
+    async (filters = appliedFilters, cursorValue = null) => {
+      try {
+        const params = {
+          userId: userDetails.userId,
+          categoryName: filters.categoryName || undefined,
+          expenseName: filters.description || undefined,
+          fromDate: filters.fromDate || undefined,
+          toDate: filters.toDate || undefined,
+          limit: 20,
+          cursor: cursorValue || undefined,
+        };
 
-      const response = await getExpenses(params);
-      const payload = response.data || {};
-      const items = Array.isArray(payload.items)
-        ? payload.items
-        : Array.isArray(response.data)
-        ? response.data
-        : [];
-      const nextCursor = payload.nextCursor || null;
-      const hasMore =
-        typeof payload.hasMore === "boolean"
-          ? payload.hasMore
-          : !!nextCursor;
-
-      const dedupedItems = items.filter(
-        (item, index, self) =>
-          self.findIndex((other) => other.id === item.id) === index
-      );
-
-      setExpenses((prev) => {
-        if (!cursorValue) {
-          return dedupedItems;
+        if (!filters.fromDate && !filters.toDate) {
+          params.monthName = filters.monthName || currentMonth || undefined;
         }
 
-        const existingIds = new Set(prev.map((item) => item.id));
-        const newItems = dedupedItems.filter((item) => !existingIds.has(item.id));
-        return [...prev, ...newItems];
-      });
-      setCursor(nextCursor);
-      setHasMore(hasMore);
-    } catch (error) {
-      console.error("Failed to fetch expenses", error);
-    }
-  };
+        const response = await getExpenses(params);
+        const payload = response.data || {};
+        const items = Array.isArray(payload.items)
+          ? payload.items
+          : Array.isArray(response.data)
+          ? response.data
+          : [];
+        const nextCursor = payload.nextCursor || null;
+        const hasMore =
+          typeof payload.hasMore === "boolean"
+            ? payload.hasMore
+            : !!nextCursor;
+
+        const dedupedItems = items.filter(
+          (item, index, self) =>
+            self.findIndex((other) => other.id === item.id) === index
+        );
+
+        setExpenses((prev) => {
+          if (!cursorValue) {
+            return dedupedItems;
+          }
+
+          const existingIds = new Set(prev.map((item) => item.id));
+          const newItems = dedupedItems.filter((item) => !existingIds.has(item.id));
+          return [...prev, ...newItems];
+        });
+        setCursor(nextCursor);
+        setHasMore(hasMore);
+      } catch (error) {
+        console.error("Failed to fetch expenses", error);
+      }
+    },
+    [appliedFilters, currentMonth, userDetails.userId]
+  );
 
   useEffect(() => {
     const initialMonth = currentMonth || "";
@@ -120,7 +120,7 @@ const ExpensesPage = () => {
     setHasMore(true);
     fetchExpenses(appliedFilters, null);
     setToggleView(true);
-  }, [appliedFilters, userDetails?.userId]);
+  }, [appliedFilters, userDetails?.userId, fetchExpenses]);
 
   const handleApplyFilters = () => {
     const usingDateRange = Boolean(fromDate || toDate);
@@ -147,86 +147,106 @@ const ExpensesPage = () => {
   };
 
   return (
-    <div className="container mt-4">
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-3">
-        <h1 className="m-0">Expenses</h1>
-        <button
-          type="button"
-          className="btn btn-outline-secondary"
-          onClick={() => setShowFilters((prev) => !prev)}
-        >
-          {showFilters ? "Hide Filters" : "Show Filters"}
-        </button>
+    <div className="expenses-page">
+      <div className="expenses-header">
+        {toggleView && (
+          <button
+            className="btn-add-expense"
+            onClick={handleOpenAddModal}
+          >
+            <FaPlus />
+            Add Expense
+          </button>
+        )}
       </div>
 
-      {showFilters && (
-        <div className="card mb-4 p-3 shadow-sm">
-          <div className="row g-3 align-items-end">
-          <div className="col-md-3">
-            <label className="form-label">Month</label>
-            <select
-              className="form-select"
-              value={selectedMonth || ""}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-            >
-              <option value="">Select month</option>
-              {(availableMonths.length ? availableMonths : [currentMonth]).map((month, index) => (
-                month && <option key={index} value={month}>{month}</option>
-              ))}
-            </select>
-          </div>
-          <div className="col-md-3">
-            <label className="form-label">Description</label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Search by description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-          <div className="col-md-2">
-            <label className="form-label">From</label>
-            <input
-              type="date"
-              className="form-control"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-            />
-          </div>
-          <div className="col-md-2">
-            <label className="form-label">To</label>
-            <input
-              type="date"
-              className="form-control"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-            />
-          </div>
-          <div className="col-md-2 d-flex gap-2">
-            <button className="btn btn-primary w-100" onClick={handleApplyFilters}>
-              Apply Filters
-            </button>
-            <button className="btn btn-outline-secondary w-100" onClick={handleResetFilters}>
-              Reset
-            </button>
-          </div>
-        </div>
-        </div>
-      )}
-
-      <div className="row g-3">
-        <p className="col-md-10">Track your expenses for {appliedFilters.monthName || currentMonth} here!</p>
-
-        <button className="col-md-2 btn btn-success " onClick={() => handleOnClick()}>{toggleView ? <span>Add expense</span> : <span>View expense</span>}</button>
-      </div>
-      {infoMessage && (
-        <div className="alert alert-info mt-3" role="alert">
-          {infoMessage}
-        </div>
-      )}
       {toggleView === true ? (
         <>
+          {/* Filter Toggle */}
+          <div className="filter-section">
+            <button
+              className="filter-toggle-btn"
+              onClick={() => setShowFilters((prev) => !prev)}
+            >
+              <span>Filters</span>
+              <FaChevronDown className={showFilters ? "rotate" : ""} />
+            </button>
+
+            {showFilters && (
+              <div className="filter-panel">
+                <div className="filter-grid">
+                  <div className="filter-group">
+                    <label>Month</label>
+                    <select
+                      className="filter-select"
+                      value={selectedMonth || ""}
+                      onChange={(e) => setSelectedMonth(e.target.value)}
+                    >
+                      <option value="">Select month</option>
+                      {(availableMonths.length ? availableMonths : [currentMonth]).map((month, index) => (
+                        month && <option key={index} value={month}>{month}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="filter-group">
+                    <label>Description</label>
+                    <input
+                      type="text"
+                      className="filter-input"
+                      placeholder="Search by description"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="filter-group">
+                    <label>From</label>
+                    <input
+                      type="date"
+                      className="filter-input"
+                      value={fromDate}
+                      onChange={(e) => setFromDate(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="filter-group">
+                    <label>To</label>
+                    <input
+                      type="date"
+                      className="filter-input"
+                      value={toDate}
+                      onChange={(e) => setToDate(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="filter-actions">
+                  <button
+                    className="btn-apply"
+                    onClick={handleApplyFilters}
+                  >
+                    Apply Filters
+                  </button>
+                  <button
+                    className="btn-reset"
+                    onClick={handleResetFilters}
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Info Message */}
+          {infoMessage && (
+            <div className="info-message">
+              {infoMessage}
+            </div>
+          )}
+
+          {/* Expenses List */}
           <ExpenseFeed
             expenses={expenses}
             hasMore={hasMore}
@@ -245,14 +265,17 @@ const ExpensesPage = () => {
             }
           />
         </>
-      ) : (
-        <AddExpense
-          onExpenseCreate={(newExpense) => {
-            setExpenses((prev) => [newExpense, ...prev]);
-            setInfoMessage("Added 1 expense. Click 'View expense' to see it.");
-          }}
-        />
-      )}
+      ) : null}
+
+      <AddExpense
+        show={showAddModal}
+        onHide={handleCloseAddModal}
+        onExpenseCreate={(newExpense) => {
+          setExpenses((prev) => [newExpense, ...prev]);
+          setInfoMessage("Added 1 expense successfully!");
+          setTimeout(() => setInfoMessage(""), 3000);
+        }}
+      />
     </div>
   );
 };

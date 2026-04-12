@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaCalendar } from "react-icons/fa";
 import { Modal, Button, Form } from "react-bootstrap";
 import { updateExpense, deleteExpense } from "../../api/expenseApi";
+import "./../../styles/expensefeed.css";
 
-// A simple feed that groups expenses by date, provides a text filter,
-// and triggers loadMore when scrolled near bottom.
 const ExpenseFeed = ({ expenses, hasMore, loadMore, onExpenseUpdate, onExpenseDelete }) => {
   const [filter, setFilter] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -80,61 +79,99 @@ const ExpenseFeed = ({ expenses, hasMore, loadMore, onExpenseUpdate, onExpenseDe
     }
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString + "T00:00:00");
+    return date.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
   return (
     <>
-      <div className="expense-feed" ref={containerRef} style={{ maxHeight: "60vh", overflowY: "auto" }}>
-        <div className="mb-3">
+      <div className="expense-feed-container">
+        <div className="expense-filter">
           <input
             type="text"
             placeholder="Filter loaded expenses"
-            className="form-control"
+            className="expense-filter-input"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
           />
         </div>
+
         {sortedDates.length === 0 && (
-          <div className="text-center text-muted">No expenses found.</div>
+          <div className="no-expenses">
+            <p>No expenses found.</p>
+          </div>
         )}
 
-        {sortedDates.map((date) => (
-          <div key={date} className="mb-4">
-            <h5 className="fw-bold">{date}</h5>
-            {grouped[date].map((e, index) => (
-              <div
-                key={`${date}-${e.id}-${index}`}
-                className="d-flex justify-content-between align-items-center border-bottom py-2"
-              >
-                <div>
-                  <div className="fw-semibold">{e.description}</div>
-                  <div className="text-muted small">₹{Number(e.amount).toLocaleString("en-IN")}</div>
+        <div className="expense-list-wrapper">
+          {sortedDates.map((date) => (
+            <div key={date} className="expense-date-group">
+              <div className="expense-date-header">
+                <div className="date-info">
+                  <FaCalendar className="date-icon" />
+                  <span className="date-text">{formatDate(date)}</span>
                 </div>
-                <div>
-                  <button className="btn btn-sm btn-outline-primary me-2" onClick={() => handleEdit(e)}>
-                    <FaEdit /> Edit
-                  </button>
-                  <button
-                    className="btn btn-sm btn-outline-danger"
-                    onClick={() => handleDelete(e.id)}
-                    disabled={deletingId === e.id}
-                  >
-                    <FaTrash /> {deletingId === e.id ? "Deleting..." : "Delete"}
-                  </button>
-                </div>
+                <span className="expense-count">{grouped[date].length} Expenses</span>
               </div>
-            ))}
-          </div>
-        ))}
+
+              <div className="expense-table">
+                <div className="table-header">
+                  <div className="table-col-description">DESCRIPTION</div>
+                  <div className="table-col-amount">AMOUNT</div>
+                  <div className="table-col-actions">ACTIONS</div>
+                </div>
+
+                {grouped[date].map((e, index) => (
+                  <div
+                    key={`${date}-${e.id}-${index}`}
+                    className="table-row"
+                  >
+                    <div className="table-col-description">
+                      <div className="expense-category-icon">🏪</div>
+                      <span className="expense-description">{e.description}</span>
+                    </div>
+                    <div className="table-col-amount">
+                      <span className="expense-amount">₹{Number(e.amount).toLocaleString("en-IN")}</span>
+                    </div>
+                    <div className="table-col-actions">
+                      <button
+                        className="btn-action btn-edit"
+                        onClick={() => handleEdit(e)}
+                        title="Edit"
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        className="btn-action btn-delete"
+                        onClick={() => handleDelete(e.id)}
+                        disabled={deletingId === e.id}
+                        title="Delete"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
 
         {hasMore && (
-          <div className="text-center py-2">
-            <button className="btn btn-outline-secondary" onClick={loadMore}>
+          <div className="load-more-section">
+            <button className="btn-load-more" onClick={loadMore}>
               Load more
             </button>
           </div>
         )}
       </div>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+      <Modal show={showModal} onHide={() => setShowModal(false)} contentClassName="expense-modal">
         <Modal.Header closeButton>
           <Modal.Title>Edit Expense</Modal.Title>
         </Modal.Header>
@@ -185,3 +222,4 @@ const ExpenseFeed = ({ expenses, hasMore, loadMore, onExpenseUpdate, onExpenseDe
 };
 
 export default ExpenseFeed;
+

@@ -1,103 +1,151 @@
-import React from "react";
+import React, { useState } from "react";
 import { createMonthApi } from "../../api/monthApi";
-import { Formik, Form, Field } from "formik";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 import { useAuth } from "../../Auth/AuthContext";
+import { FaPlus, FaArrowLeft } from "react-icons/fa";
+import "./../../styles/monthform.css";
 
-const AddMonth = () => {
+const AddMonth = ({ onSuccess = () => {} }) => {
+    const { userDetails } = useAuth();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
 
-    const { userDetails} = useAuth();
-
-    const monthList = ["January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"];
+    const monthList = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
 
     const yearList = ["2025", "2026", "2027", "2028"];
 
-    // Function to add a new month
+    const validationSchema = Yup.object().shape({
+        month: Yup.string().required("Please select a month"),
+        year: Yup.string().required("Please select a year"),
+        earning: Yup.number()
+            .required("Earning amount is required")
+            .positive("Earning must be a positive number")
+            .typeError("Earning must be a valid number"),
+    });
+
     const handleAddMonth = async (values, { resetForm }) => {
         try {
-            // const response = await axios.post(`${API_BASE_URL}/months`, values);
-            // setMonths([...months, response.data]); // Assuming response contains the added month
-            console.log("adding month " + JSON.stringify(values));
+            setIsSubmitting(true);
+            setSuccessMessage("");
+
             const monthReq = {
                 name: values.month + "," + values.year,
-                earning: values.earning,
+                earning: parseFloat(values.earning),
                 userId: userDetails.userId
-            }
+            };
 
-            await createMonthApi(monthReq).then((response) => {
-                console.log("month created with id " + response.data)
-                // setMonthNames(response.data);
-                // setCurrentMonth(monthReq.name)
-            })
+            const response = await createMonthApi(monthReq);
+            console.log("Month created with id:", response.data);
+
+            setSuccessMessage(`✅ Month "${monthReq.name}" created successfully!`);
             resetForm();
+
+            setTimeout(() => {
+                setSuccessMessage("");
+                onSuccess();
+            }, 2000);
         } catch (error) {
             console.error("Failed to add month:", error);
             alert("Failed to add month. Please try again.");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     return (
-        <div className="container mt-4">
+        <div className="add-month-form-container">
+            {successMessage && <div className="form-success">{successMessage}</div>}
 
-            {/* Add New Month Section */}
-            <div className="mb-4">
-                <h4>Add New Month</h4>
-                <Formik
-                    initialValues={{ month: "", year: "", earning: 0 }}
-                    onSubmit={handleAddMonth}
-                >
-                    <Form className="row g-3">
-                        {/* <Field name="month" className="form-control me-2" placeholder="Enter Month (e.g., January 2025)" /> */}
-                        {/* <Field name="month" className="form-control me-2" placeholder="Enter Month (e.g., January 2025)" /> */}
+            <h2 className="form-title">Add New Month</h2>
+            <p className="form-subtitle">Create a new month to track your finances</p>
 
-                        {/* <label htmlFor="month" className=" form-label flex-fill">
-                            Select Month
-                        </label> */}
-                        <div className="col-md-3">
+            <Formik
+                initialValues={{
+                    month: "",
+                    year: "",
+                    earning: ""
+                }}
+                validationSchema={validationSchema}
+                onSubmit={handleAddMonth}
+            >
+                {({ values, errors, touched, isValid }) => (
+                    <Form>
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label htmlFor="month" className="form-label required">
+                                    Select Month
+                                </label>
+                                <div className="select-wrapper">
+                                    <Field
+                                        as="select"
+                                        id="month"
+                                        name="month"
+                                        className="form-control-custom"
+                                    >
+                                        <option value="">-- Select a month --</option>
+                                        {monthList.map((month, index) => (
+                                            <option key={index} value={month}>
+                                                {month}
+                                            </option>
+                                        ))}
+                                    </Field>
+                                </div>
+                                <ErrorMessage name="month" component="div" className="form-error" />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="year" className="form-label required">
+                                    Select Year
+                                </label>
+                                <div className="select-wrapper">
+                                    <Field
+                                        as="select"
+                                        id="year"
+                                        name="year"
+                                        className="form-control-custom"
+                                    >
+                                        <option value="">-- Select a year --</option>
+                                        {yearList.map((year, index) => (
+                                            <option key={index} value={year}>
+                                                {year}
+                                            </option>
+                                        ))}
+                                    </Field>
+                                </div>
+                                <ErrorMessage name="year" component="div" className="form-error" />
+                            </div>
+                        </div>
+
+                        <div className="form-group form-grid-full">
+                            <label htmlFor="earning" className="form-label required">
+                                Monthly Earning
+                            </label>
                             <Field
-                                as="select"
-                                // id="month"
-                                name="month"
-                                className=" form-control"
+                                id="earning"
+                                name="earning"
+                                type="number"
+                                placeholder="Enter your monthly earning amount"
+                                className="form-control-custom"
+                            />
+                            <ErrorMessage name="earning" component="div" className="form-error" />
+                        </div>
+
+                        <div className="form-actions">
+                            <button
+                                type="submit"
+                                className="btn-submit"
+                                disabled={isSubmitting || !isValid}
                             >
-                                <option value="">-- Select a month --</option>
-                                {monthList.map((month, index) => (
-                                    <option key={index} value={month}>
-                                        {month}
-                                    </option>
-                                ))}
-                            </Field>
-                        </div>
-                        {/* <label htmlFor="year" className="form- label flex-fill">
-                            Select Year
-                        </label> */}
-                        <div className="col-md-3">
-                            <Field
-                                as="select"
-                                // id="year"
-                                name="year"
-                                className="form-control"
-                            >
-                                <option value="">-- Select a year --</option>
-                                {yearList.map((year, index) => (
-                                    <option key={index} value={year}>
-                                        {year}
-                                    </option>
-                                ))}
-                            </Field>
-                        </div>
-                        <div className="col-md-3">
-                            {/* <label htmlFor="earning" className="form-label flex-fill">
-                            Add Earnings
-                        </label> */}
-                            <Field name="earning" className="form-control" placeholder="Enter amount" />
-                        </div>
-                        <div className="col-md-3">
-                            <button type="submit" className="btn btn-primary w-100">Add Month</button>
+                                <FaPlus /> Add Month
+                            </button>
                         </div>
                     </Form>
-                </Formik>
-            </div>
+                )}
+            </Formik>
         </div>
     );
 };

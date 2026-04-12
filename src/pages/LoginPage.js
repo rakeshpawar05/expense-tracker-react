@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -6,7 +6,7 @@ import { useAuth } from "../Auth/AuthContext";
 import { getFullUser } from "../api/AxiosService";
 
 const LoginPage = () => {
-    const { isLogged, doLogin, userDetails, setUserDetails } = useAuth();
+    const { doLogin, userDetails, setUserDetails } = useAuth();
     const navigate = useNavigate();
     
     const [loginError, setLoginError] = useState(null); // State to hold error message

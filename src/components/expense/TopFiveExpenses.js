@@ -2,182 +2,85 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../Auth/AuthContext";
 import { getTop5Expenses } from "../../api/expenseApi";
 import { FaList } from "react-icons/fa";
+import "./../../styles/topfiveexpenses.css";
 
 const TopFiveExpenses = () => {
+  const { currentMonth, userDetails } = useAuth();
+  const [topExpenses, setTopExpenses] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-    const { currentMonth, userDetails } = useAuth();
+  useEffect(() => {
+    const fetchExpenses = async () => {
+      if (currentMonth !== "") {
+        try {
+          setLoading(true);
+          const response = await getTop5Expenses(userDetails.userId, currentMonth);
+          setTopExpenses(response.data || []);
+        } catch (error) {
+          console.log("Failed to get Top 5 expenses for " + currentMonth + " " + error);
+          setTopExpenses([]);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
 
-    // Mock data for the top 5 expenses (replace with real data from your API)
-    const [topExpenses, setTopExpenses] = useState([]);
+    fetchExpenses();
+  }, [currentMonth, userDetails?.userId]);
 
-    useEffect(() => {
-        // Simulate fetching data from an API
-        const fetchExpenses = async () => {
-            // Example expenses (replace this logic with your API call)
-            if (currentMonth != '') {
-                console.log("current month " + currentMonth)
-                // const expenses = [
-                //     { name: "Rent", amount: 1500 },
-                //     { name: "Groceries", amount: 300 },
-                //     { name: "Utilities", amount: 200 },
-                //     { name: "Internet", amount: 100 },
-                //     { name: "Dining Out", amount: 75 },
-                // ];
+  const formatDate = (dateString) => {
+    const date = new Date(dateString + "T00:00:00");
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  };
 
-                try {
-                    await getTop5Expenses(userDetails.userId, currentMonth).then((response) => {
-                        // setAmount(response.data);
-                        console.log("expense " + JSON.stringify(response.data))
-                        // console.log("earnings " + response.data.expenses.reduce((acc, expense) => acc + Number(expense.amount), 0))
-                        // response.data.expenses.map( expense => expense.amount).sum();
-                        // setCurrentMonth(response.data.name)
-                        // updateSummary(response.data.expenses, response.data.earning);
-                        setTopExpenses(response.data); // Set the fetched expenses
-                        console.log("done")
-                    })
-                } catch (error) {
-                    console.log("Failed to get Top 5 expenses for "+ currentMonth + " " + error.response.data)
-                    // console.error("Failed to get top 5 expenses:");
-                }
+  return (
+    <div className="top-expenses-card">
+      <div className="card-header">
+        <div className="header-title">
+          <FaList className="header-icon" />
+          <div>
+            <h3 className="card-title">Top 5 Expenses</h3>
+            <p className="card-subtitle">Your highest spending items this month</p>
+          </div>
+        </div>
+      </div>
 
-
-
-            }
-        };
-
-        fetchExpenses();
-    }, [currentMonth]);
-
-    return (
-        <div className="container mt-mb-5 pb-3">
-
-            {/* Top 5 Expenses Section */}
-            {/* <div className="card">
-                <div className="card-body">
-                    <h3>Top 5 Expenses of the Month</h3>
-
-                    <table className="table">
-                        <thead>
-                            <tr>
-                                <th style={{ width: "10%" }}>Date</th>
-                                <th style={{ width: "80%" }}>Description</th>
-                                <th style={{ width: "10%", textAlign: "right" }}>Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {topExpenses.map((expense, index) => (
-                                <tr key={index}>
-                                    <td>{expense.date}</td>
-                                    <td className="text-truncate">{expense.description}</td>
-                                    <td style={{ textAlign: "right" }}>₹{(expense.amount).toLocaleString('en-IN')}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table> */}
-
-            {/* <ul className="list-group">
-                        {topExpenses.length > 0 ? (
-                            topExpenses.map((expense, index) => (
-                                // <li key={index} className="list-group-item d-flex justify-content-between">
-                                //     <span className="p-2">{expense.date}</span>
-                                //     <span className="p-2 flex-grow-1">{expense.description}</span>
-                                //     <span className="p-2">${expense.amount}</span>
-                                // </li>
-
-                                // <li key={index} className="list-group-item d-flex align-items-center">
-                                //     <span className="p-2 flex-grow-0" style={{ flex: 1 }}>{expense.date}</span>
-                                //     <span className="p-2 text-truncate" style={{ flex: 3 }}>{expense.description}</span>
-                                //     <span className="p-2 flex-grow-0" style={{ flex: 1, textAlign: "right" }}>${expense.amount}</span>
-                                // </li>
-                            ))
-                        ) : (
-                            <li className="list-group-item text-center">No expenses found.</li>
-                        )}
-                    </ul> */}
-            {/* </div>
-            </div> */}
-
-            {/* <div className="card shadow-lg p-4 rounded-3">
-                <div className="card-body">
-                    <div className="d-flex align-items-center mb-3">
-                        <FaList size={30} className="me-3 text-primary" />
-                        <h4 className="mb-0 text-primary">Top 5 Expenses of the Month</h4>
-                    </div>
-
-                    <table className="table table-striped table-hover">
-                        <thead className="bg-primary text-white">
-                            <tr>
-                                <th style={{ width: "15%" }}>Date</th>
-                                <th style={{ width: "70%" }}>Description</th>
-                                <th style={{ width: "15%", textAlign: "right" }}>Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {topExpenses.length > 0 ? (
-                                topExpenses.map((expense, index) => (
-                                    <tr key={index}>
-                                        <td className="fw-bold">{expense.date}</td>
-                                        <td className="text-truncate">{expense.description}</td>
-                                        <td className="text-end fw-bold text-danger">
-                                            ₹{expense.amount.toLocaleString('en-IN')}
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="3" className="text-center text-muted">
-                                        No expenses found.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div> */}
-
-
-            <div className="card shadow-lg p-4 rounded-3" style={{ background: "#f8f9fa", border: "2px solid #007bff" }}>
-                <div className="card-body">
-                    <div className="d-flex align-items-center mb-3">
-                        <FaList size={30} className="me-3 text-primary" />
-                        <h4 className="mb-0 text-primary fw-bold">Top 5 Expenses of the Month</h4>
-                    </div>
-
-                    <table className="table table-hover">
-                        <thead style={{ background: "linear-gradient(90deg, #007bff, #0056b3)", color: "white" }}>
-                            <tr>
-                                <th style={{ width: "15%", fontSize: "1.1rem", fontWeight: "bold" }}>Date</th>
-                                <th style={{ width: "65%", fontSize: "1.1rem", fontWeight: "bold" }}>Description</th>
-                                <th style={{ width: "20%", textAlign: "right", fontSize: "1.1rem", fontWeight: "bold" }}>Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {topExpenses.length > 0 ? (
-                                topExpenses.map((expense, index) => (
-                                    <tr key={index} style={{ backgroundColor: index % 2 === 0 ? "#ffffff" : "#f1f1f1" }}>
-                                        <td className="fw-bold text-dark">{expense.date}</td>
-                                        <td className="text-truncate text-secondary">{expense.description}</td>
-                                        <td className="text-end fw-bold" style={{ color: "#dc3545", fontSize: "1.1rem" }}>
-                                            ₹{expense.amount.toLocaleString('en-IN')}
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="3" className="text-center text-muted fw-bold">
-                                        No expenses found.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+      <div className="card-body">
+        {loading ? (
+          <div className="loading-state">Loading expenses...</div>
+        ) : topExpenses.length > 0 ? (
+          <div className="expenses-table">
+            <div className="table-header">
+              <div className="col-date">DATE</div>
+              <div className="col-description">DESCRIPTION</div>
+              <div className="col-amount">AMOUNT</div>
             </div>
 
-        </div>
-
-
-    );
+            {topExpenses.map((expense, index) => (
+              <div key={index} className="table-row">
+                <div className="col-date">
+                  <span className="date-badge">{formatDate(expense.date)}</span>
+                </div>
+                <div className="col-description">
+                  <p className="description-text">{expense.description}</p>
+                </div>
+                <div className="col-amount">
+                  <span className="amount-text">₹{expense.amount.toLocaleString("en-IN")}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state">
+            <p>No expenses found.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default TopFiveExpenses;
