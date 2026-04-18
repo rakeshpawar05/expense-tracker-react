@@ -1,7 +1,7 @@
 /* Chatbot Page Container */
 .chatbot-page {
   padding: 0;
-  height: 100vh;
+  height: 85vh;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -48,7 +48,7 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .chatbot-page {
-    padding: 16px;
+    padding: 0px;
   }
 
   .chatbot-page-header h1 {
@@ -57,5 +57,6 @@
 
   .chatbot-page-container {
     border-radius: 8px;
+    margin: 0 2px 2px 2px;
   }
 }
