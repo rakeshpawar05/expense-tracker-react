@@ -56,6 +56,59 @@
   gap: 12px;
 }
 
+.category-filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+.category-filter-label {
+  font-weight: 600;
+  color: #212529;
+  font-size: 14px;
+}
+
+.category-filter-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.category-btn {
+  padding: 8px 16px;
+  border: 1.5px solid #e9ecef;
+  background: white;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 13px;
+  color: #495057;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 60px;
+  text-align: center;
+}
+
+.category-btn:hover {
+  border-color: #667eea;
+  color: #667eea;
+  background: #f5f7fb;
+}
+
+.category-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.category-btn.active:hover {
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
 .filter-toggle-btn {
   align-self: flex-start;
   display: flex;

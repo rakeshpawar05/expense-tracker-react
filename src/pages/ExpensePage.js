@@ -4,6 +4,7 @@ import ExpenseFeed from "../components/expense/ExpenseFeed";
 import { useAuth } from "../Auth/AuthContext";
 import { getExpenses } from "../api/expenseApi";
 import { getMonthNamesApi } from "../api/monthApi";
+import { getCategories } from "../api/categoryApi";
 import { FaPlus, FaChevronDown } from "react-icons/fa";
 import "./../styles/expensepage.css";
 
@@ -18,6 +19,8 @@ const ExpensesPage = () => {
   const [infoMessage, setInfoMessage] = useState("");
   const [availableMonths, setAvailableMonths] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [description, setDescription] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -113,6 +116,49 @@ const ExpensesPage = () => {
     loadMonths();
   }, [userDetails?.userId]);
 
+  const fetchCategories = useCallback(
+    async (monthName) => {
+      if (!userDetails?.userId || !monthName) {
+        setCategories([]);
+        return;
+      }
+
+      try {
+        const response = await getCategories(userDetails.userId, monthName);
+        const categoryNames = Array.isArray(response.data)
+          ? [...new Set(response.data.map((category) => category.name).filter(Boolean))]
+          : [];
+        setCategories(categoryNames);
+      } catch (error) {
+        console.error("Failed to load categories", error);
+        setCategories([]);
+      }
+    },
+    [userDetails?.userId]
+  );
+
+  useEffect(() => {
+    const monthForCategories = selectedMonth || currentMonth;
+    if (appliedFilters.fromDate || appliedFilters.toDate) return;
+    fetchCategories(monthForCategories);
+  }, [fetchCategories, selectedMonth, currentMonth, appliedFilters.fromDate, appliedFilters.toDate]);
+
+  const availableCategories = React.useMemo(() => {
+    if (appliedFilters.fromDate || appliedFilters.toDate) {
+      return Array.from(
+        new Set(expenses.map((expense) => expense.categoryName).filter(Boolean))
+      );
+    }
+    return categories;
+  }, [appliedFilters.fromDate, appliedFilters.toDate, expenses, categories]);
+
+  useEffect(() => {
+    if (selectedCategory !== "All" && !availableCategories.includes(selectedCategory)) {
+      setSelectedCategory("All");
+      setAppliedFilters((prev) => ({ ...prev, categoryName: "" }));
+    }
+  }, [availableCategories, selectedCategory]);
+
   useEffect(() => {
     if (!userDetails?.userId) return;
     setExpenses([]);
@@ -130,6 +176,7 @@ const ExpensesPage = () => {
       description,
       fromDate,
       toDate,
+      categoryName: selectedCategory === "All" ? "" : selectedCategory,
     };
     setAppliedFilters(nextFilters);
     if (!usingDateRange && monthName && monthName !== currentMonth) {
@@ -140,10 +187,19 @@ const ExpensesPage = () => {
   const handleResetFilters = () => {
     const monthName = currentMonth || "";
     setSelectedMonth(monthName);
+    setSelectedCategory("All");
     setDescription("");
     setFromDate("");
     setToDate("");
-    setAppliedFilters({ monthName, description: "", fromDate: "", toDate: "" });
+    setAppliedFilters({ monthName, description: "", fromDate: "", toDate: "", categoryName: "" });
+  };
+
+  const handleCategorySelect = (categoryName) => {
+    setSelectedCategory(categoryName);
+    setAppliedFilters((prev) => ({
+      ...prev,
+      categoryName: categoryName === "All" ? "" : categoryName,
+    }));
   };
 
   return (
@@ -237,6 +293,29 @@ const ExpensesPage = () => {
                 </div>
               </div>
             )}
+          </div>
+
+          <div className="category-filter-section">
+            <label className="category-filter-label">Category</label>
+            <div className="category-filter-buttons">
+              <button
+                type="button"
+                className={`category-btn ${selectedCategory === "All" ? "active" : ""}`}
+                onClick={() => handleCategorySelect("All")}
+              >
+                All
+              </button>
+              {availableCategories.map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  className={`category-btn ${selectedCategory === category ? "active" : ""}`}
+                  onClick={() => handleCategorySelect(category)}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Info Message */}

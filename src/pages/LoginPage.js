@@ -4,6 +4,8 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useAuth } from "../Auth/AuthContext";
 import { getFullUser } from "../api/AxiosService";
+import { FaUser, FaLock } from "react-icons/fa";
+import "./../styles/loginpage.css";
 
 const LoginPage = () => {
     const { doLogin, userDetails, setUserDetails } = useAuth();
@@ -64,66 +66,80 @@ const LoginPage = () => {
     }
 
     return (
-        <div className="container d-flex justify-content-center align-items-center vh-100">
-            <div className="card p-4 w-100" style={{ maxWidth: "500px" }}>
-                <h2 className="text-center mb-4">Login</h2>
-                {loginError && (
-                    <div className="alert alert-danger text-center" role="alert">
-                        {loginError}
+        <div className="login-page">
+            <div className="login-container">
+                <div className="login-card">
+                    <div className="login-header">
+                        <div className="login-icon">
+                            <FaUser />
+                        </div>
+                        <h1 className="login-title">Welcome Back</h1>
+                        <p className="login-subtitle">Sign in to your account</p>
                     </div>
-                )}
-                <Formik
-                    initialValues={initialValues}
-                    validationSchema={validationSchema}
-                    onSubmit={handleSubmit}
-                >
-                    {({ values }) => (
-                        <Form>
-                            <div className="mb-3">
-                                <label htmlFor="userName" className="form-label">
-                                    Email
-                                </label>
-                                <Field
-                                    type="email"
-                                    id="userName"
-                                    name="userName"
-                                    className="form-control"
-                                    placeholder="Enter your email"
-                                    value={values.userName}
-                                />
-                                <ErrorMessage
-                                    name="userName"
-                                    component="div"
-                                    className="text-danger mt-2"
-                                />
-                            </div>
-                            <div className="mb-3">
-                                <label htmlFor="password" className="form-label">
-                                    Password
-                                </label>
-                                <Field
-                                    type="password"
-                                    id="password"
-                                    name="password"
-                                    className="form-control"
-                                    placeholder="Enter your password"
-                                    value={values.password}
-                                />
-                                <ErrorMessage
-                                    name="password"
-                                    component="div"
-                                    className="text-danger mt-2"
-                                />
-                            </div>
-                            <button type="submit" className="btn btn-primary w-100 mt-3">
-                                Login
-                            </button>
-                        </Form>
+
+                    {loginError && (
+                        <div className="error-alert">
+                            <span>{loginError}</span>
+                        </div>
                     )}
-                </Formik>
-                <div className="mt-3 text-center">
-                    <div>Don't have an account?</div>
-                    <button className="btn btn-link p-0" onClick={() => onClickRegister()}>Register here</button>
+
+                    <Formik
+                        initialValues={initialValues}
+                        validationSchema={validationSchema}
+                        onSubmit={handleSubmit}
+                    >
+                        {({ values }) => (
+                            <Form className="login-form">
+                                <div className="form-group">
+                                    <label htmlFor="userName" className="form-label">Email</label>
+                                    <div className="input-wrapper">
+                                        <FaUser className="input-icon" />
+                                        <Field
+                                            type="email"
+                                            id="userName"
+                                            name="userName"
+                                            className="form-input"
+                                            placeholder="Enter your email"
+                                            value={values.userName}
+                                        />
+                                    </div>
+                                    <ErrorMessage
+                                        name="userName"
+                                        component="div"
+                                        className="error-message"
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label htmlFor="password" className="form-label">Password</label>
+                                    <div className="input-wrapper">
+                                        <FaLock className="input-icon" />
+                                        <Field
+                                            type="password"
+                                            id="password"
+                                            name="password"
+                                            className="form-input"
+                                            placeholder="Enter your password"
+                                            value={values.password}
+                                        />
+                                    </div>
+                                    <ErrorMessage
+                                        name="password"
+                                        component="div"
+                                        className="error-message"
+                                    />
+                                </div>
+
+                                <button type="submit" className="btn-login">
+                                    Sign In
+                                </button>
+                            </Form>
+                        )}
+                    </Formik>
+
+                    <div className="login-footer">
+                        <p>Don't have an account? <button className="link-button" onClick={onClickRegister}>Create one</button></p>
+                    </div>
                 </div>
             </div>
         </div>

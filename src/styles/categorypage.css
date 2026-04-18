@@ -266,10 +266,12 @@
   .form-fields {
     width: 100%;
     flex-direction: column;
+    min-width: auto;
   }
 
   .form-group {
     width: 100%;
+    min-width: auto;
   }
 
   .btn-submit {
