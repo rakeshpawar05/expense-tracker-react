@@ -26,7 +26,7 @@ const ExpensesPage = () => {
   const [toDate, setToDate] = useState("");
   const [cursor, setCursor] = useState(null);
   const [appliedFilters, setAppliedFilters] = useState({
-    monthName: currentMonth,
+    yearMonth: currentMonth,
     description: "",
     fromDate: "",
     toDate: "",
@@ -54,7 +54,7 @@ const ExpensesPage = () => {
         };
 
         if (!filters.fromDate && !filters.toDate) {
-          params.monthName = filters.monthName || currentMonth || undefined;
+          params.yearMonth = filters.yearMonth || currentMonth || undefined;
         }
 
         const response = await getExpenses(params);
@@ -98,7 +98,7 @@ const ExpensesPage = () => {
     setSelectedMonth(initialMonth);
     setAppliedFilters((prev) => ({
       ...prev,
-      monthName: initialMonth,
+      yearMonth: initialMonth,
     }));
   }, [currentMonth]);
 
@@ -117,14 +117,14 @@ const ExpensesPage = () => {
   }, [userDetails?.userId]);
 
   const fetchCategories = useCallback(
-    async (monthName) => {
-      if (!userDetails?.userId || !monthName) {
+    async (yearMonth) => {
+      if (!userDetails?.userId || !yearMonth) {
         setCategories([]);
         return;
       }
 
       try {
-        const response = await getCategories(userDetails.userId, monthName);
+        const response = await getCategories(userDetails.userId, yearMonth);
         const categoryNames = Array.isArray(response.data)
           ? [...new Set(response.data.map((category) => category.name).filter(Boolean))]
           : [];
@@ -170,28 +170,28 @@ const ExpensesPage = () => {
 
   const handleApplyFilters = () => {
     const usingDateRange = Boolean(fromDate || toDate);
-    const monthName = usingDateRange ? "" : selectedMonth || currentMonth;
+    const yearMonth = usingDateRange ? "" : selectedMonth || currentMonth;
     const nextFilters = {
-      monthName,
+      yearMonth,
       description,
       fromDate,
       toDate,
       categoryName: selectedCategory === "All" ? "" : selectedCategory,
     };
     setAppliedFilters(nextFilters);
-    if (!usingDateRange && monthName && monthName !== currentMonth) {
-      setCurrentMonth(monthName);
+    if (!usingDateRange && yearMonth && yearMonth !== currentMonth) {
+      setCurrentMonth(yearMonth);
     }
   };
 
   const handleResetFilters = () => {
-    const monthName = currentMonth || "";
-    setSelectedMonth(monthName);
+    const yearMonth = currentMonth || "";
+    setSelectedMonth(yearMonth);
     setSelectedCategory("All");
     setDescription("");
     setFromDate("");
     setToDate("");
-    setAppliedFilters({ monthName, description: "", fromDate: "", toDate: "", categoryName: "" });
+    setAppliedFilters({ yearMonth, description: "", fromDate: "", toDate: "", categoryName: "" });
   };
 
   const handleCategorySelect = (categoryName) => {

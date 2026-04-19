@@ -74,8 +74,8 @@ export function AuthProvider({ children }) {
 
 
             const date = new Date();
-            console.log(monthList[date.getMonth()])
-            setCurrentMonth(monthList[date.getMonth()] + "," + date.getFullYear())
+            console.log("date", date.toISOString().slice(0, 7))
+            setCurrentMonth(date.toISOString().slice(0, 7))
             console.log("setting default month " + currentMonth)
             sessionStorage.removeItem("pageReloaded"); 
 

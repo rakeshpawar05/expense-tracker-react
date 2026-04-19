@@ -26,7 +26,7 @@ const MonthList = () => {
             // Set default year to the latest year
             if (response.data.length > 0) {
                 const years = extractYears(response.data);
-                const latestYear = Math.max(...years);
+                const latestYear = new Date().getFullYear();
                 setSelectedYear(latestYear);
             }
         } catch (error) {
@@ -82,12 +82,12 @@ const MonthList = () => {
     };
 
     const goToExpenses = (month) => {
-        setCurrentMonth(month.name);
+        setCurrentMonth(month.yearMonth);
         navigate(`/expenses`);
     };
 
     const goToSavings = (month) => {
-        setCurrentMonth(month.name);
+        setCurrentMonth(month.yearMonth);
         navigate(`/savings`);
     };
 

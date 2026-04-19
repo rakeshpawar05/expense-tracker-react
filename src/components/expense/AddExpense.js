@@ -43,16 +43,25 @@ const AddExpense = ({ show = false, onHide = () => {}, onExpenseCreate = () => {
     };
 
     const handleAddExpense = async (values, { resetForm }) => {
-        try {
+        console.log("adding expense");
+        
+        try {            
+            
             setSaving(true);
             const expenseMonthName = monthList[parseInt(values.date.toString().split('-')[1]) - 1] + "," +
                 values.date.toString().split('-')[0];
+            
+            console.log("values: ", values);
+            const yearMonth = values.date.toString().slice(0,7);
+            console.log("year ", yearMonth)
+            
 
             const expense = {
                 description: values.name,
                 amount: values.amount,
                 date: values.date.toString(),
                 monthName: expenseMonthName,
+                yearMonth: yearMonth,
                 categoryName: values.categoryName.trim(),
                 eventName: values.eventName,
                 userId: userDetails.userId

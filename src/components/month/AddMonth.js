@@ -16,6 +16,21 @@ const AddMonth = ({ onSuccess = () => {} }) => {
         "July", "August", "September", "October", "November", "December"
     ];
 
+    const monthMap = {
+        "January": "01",
+        "February": "02",
+        "March": "03",
+        "April": "04",
+        "May": "05",
+        "June": "06",
+        "July": "07",
+        "August": "08",
+        "September": "09",
+        "October": "10",
+        "November": "11",
+        "December": "12"
+    }
+
     const yearList = ["2025", "2026", "2027", "2028"];
 
     const validationSchema = Yup.object().shape({
@@ -27,6 +42,8 @@ const AddMonth = ({ onSuccess = () => {} }) => {
             .typeError("Earning must be a valid number"),
     });
 
+    const getMonthNum = (name) => monthMap[name] || null;
+
     const handleAddMonth = async (values, { resetForm }) => {
         try {
             setIsSubmitting(true);
@@ -35,6 +52,7 @@ const AddMonth = ({ onSuccess = () => {} }) => {
             const monthReq = {
                 name: values.month + "," + values.year,
                 earning: parseFloat(values.earning),
+                yearMonth: values.year + "-" + getMonthNum(values.month),
                 userId: userDetails.userId
             };
 
@@ -67,6 +85,7 @@ const AddMonth = ({ onSuccess = () => {} }) => {
                 initialValues={{
                     month: "",
                     year: "",
+                    yearMonth: "",
                     earning: ""
                 }}
                 validationSchema={validationSchema}

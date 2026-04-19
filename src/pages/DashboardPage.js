@@ -25,7 +25,7 @@ const DashboardPage = () => {
     try {
       const response = await getDashboardData({
         userId: userDetails.userId,
-        monthName: values.month,
+        yearMonth: values.month,
       });
       const data = response.data;
       if (data) {
@@ -51,6 +51,7 @@ const DashboardPage = () => {
     const fetchMonthNames = async () => {
       try {
         const response = await getMonthNamesApi(userDetails.userId);
+        console.log("month list", response.data)
         setListOfAvailableMonths(response.data);
       } catch (error) {
         console.error("Failed to fetch month names:", error);

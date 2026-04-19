@@ -21,7 +21,7 @@ const SavingsPage = () => {
   const fetchSavings = async (pageNum = 0) => {
     try {
       const params = {
-        monthName: currentMonth,
+        yearMonth: currentMonth,
         userId: userDetails.userId,
         page: pageNum,
         limit: 20,
