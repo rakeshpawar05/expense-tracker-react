@@ -26,6 +26,24 @@ const Chatbot = () => {
     scrollToBottom();
   }, [messages]);
 
+  const escapeHtml = (unsafe) =>
+    unsafe
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
+  const formatMessageText = (text) => {
+    const escapedText = escapeHtml(text || "");
+    const withHeadings = escapedText.replace(/^#{1,6}\s*(.+)$/gm, (match) => {
+      const level = Math.min(match.match(/^#+/)[0].length, 6);
+      const content = match.replace(/^#{1,6}\s*/, "");
+      return `<h${level}>${content}</h${level}>`;
+    });
+    return withHeadings.replace(/\n/g, "<br/>");
+  };
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
 
@@ -84,7 +102,10 @@ const Chatbot = () => {
             className={`message ${message.sender === "user" ? "user-message" : "bot-message"}`}
           >
             <div className="message-content">
-              <p className="message-text">{message.text}</p>
+              <div
+                className="message-text"
+                dangerouslySetInnerHTML={{ __html: formatMessageText(message.text) }}
+              />
             </div>
           </div>
         ))}

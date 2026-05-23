@@ -89,22 +89,27 @@
 
 .input-icon {
   position: absolute;
-  left: 16px;
+  left: 20px;
   top: 50%;
   transform: translateY(-50%);
   color: #868e96;
   font-size: 16px;
+  pointer-events: none;
 }
 
 .form-input {
   width: 100%;
-  padding: 14px 16px 14px 48px;
+  padding: 14px 16px 14px 44px;
   border: 1px solid #e9ecef;
   border-radius: 8px;
   font-size: 16px;
   font-family: inherit;
   transition: all 0.3s ease;
   background: #f8f9fa;
+}
+
+.login-form .form-input {
+  padding-left: 44px !important;
 }
 
 .form-input:focus {

@@ -91,7 +91,7 @@
   padding: 12px 16px;
   word-wrap: break-word;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .message-text {
