@@ -9,7 +9,7 @@ import { Modal } from '../components/common/Modal';
 import { ExpenseListModal } from '../components/common/ExpenseListModal';
 import { AddExpenseModal } from '../components/expenses/AddExpenseModal';
 import { EditExpenseModal } from '../components/expenses/EditExpenseModal';
-import { Tags, Plus, Trash2, ArrowUpRight, ChevronRight } from 'lucide-react';
+import { Tags, Plus, Trash2, ArrowUpRight, ChevronRight, Sparkles } from 'lucide-react';
 
 export const CategoriesPage = () => {
   const { userDetails, currentYearMonth } = useAuth();
