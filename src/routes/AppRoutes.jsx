@@ -6,6 +6,7 @@ import { LoginPage } from '../pages/LoginPage';
 import { RegisterPage } from '../pages/RegisterPage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { ExpensesPage } from '../pages/ExpensesPage';
+import { SubscriptionsPage } from '../pages/SubscriptionsPage';
 import { SavingsPage } from '../pages/SavingsPage';
 import { CategoriesPage } from '../pages/CategoriesPage';
 import { MonthsPage } from '../pages/MonthsPage';
@@ -24,6 +25,7 @@ export const AppRoutes = () => {
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/expenses" element={<ExpensesPage />} />
+          <Route path="/subscriptions" element={<SubscriptionsPage />} />
           <Route path="/savings" element={<SavingsPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/months" element={<MonthsPage />} />

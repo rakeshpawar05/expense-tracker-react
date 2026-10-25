@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
   Receipt,
+  CalendarSync,
   PiggyBank,
   Tags,
   Calendar,
@@ -19,6 +20,7 @@ import clsx from 'clsx';
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/expenses', label: 'Expenses', icon: Receipt },
+  { to: '/subscriptions', label: 'Subscriptions', icon: CalendarSync, badge: 'New' },
   { to: '/savings', label: 'Savings', icon: PiggyBank },
   { to: '/categories', label: 'Categories', icon: Tags },
   { to: '/months', label: 'Months', icon: Calendar },
