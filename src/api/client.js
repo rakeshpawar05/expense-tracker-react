@@ -11,7 +11,8 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('jwtToken');
-  if (token) {
+  // Only attach JWT token to protected endpoints, never to /auth/login or /auth/register
+  if (token && !config.url?.includes('/auth/')) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;

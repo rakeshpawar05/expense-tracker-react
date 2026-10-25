@@ -60,15 +60,15 @@ export const LoginPage = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
             <div>
-              <label className="block text-slate-400 font-semibold mb-1.5">Username / Email</label>
+              <label className="block text-slate-400 font-semibold mb-1.5">Email Address</label>
               <div className="relative">
                 <User size={16} className="text-slate-500 absolute left-3.5 top-3" />
                 <input
-                  type="text"
+                  type="email"
                   required
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
-                  placeholder="Enter your username"
+                  placeholder="name@example.com"
                   className="w-full bg-slate-900 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
                 />
               </div>
