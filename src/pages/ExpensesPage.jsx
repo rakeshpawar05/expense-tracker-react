@@ -7,6 +7,7 @@ import { Button } from '../components/common/Button';
 import { GlassCard } from '../components/common/GlassCard';
 import { Search, Filter, Loader2, Plus, Sparkles, Inbox } from 'lucide-react';
 import { AddExpenseModal } from '../components/expenses/AddExpenseModal';
+import { EditExpenseModal } from '../components/expenses/EditExpenseModal';
 
 export const ExpensesPage = () => {
   const { userDetails, currentYearMonth } = useAuth();
@@ -14,6 +15,7 @@ export const ExpensesPage = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState(null);
 
   const {
     data,
@@ -164,6 +166,7 @@ export const ExpensesPage = () => {
                     <ExpenseCard
                       key={expense.id}
                       expense={expense}
+                      onEdit={(exp) => setEditingExpense(exp)}
                       onDelete={(id) => {
                         if (window.confirm('Delete this expense?')) {
                           deleteMutation.mutate(id);
@@ -198,10 +201,16 @@ export const ExpensesPage = () => {
         </div>
       )}
 
-      {/* Modal */}
+      {/* Modals */}
       <AddExpenseModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
+      />
+
+      <EditExpenseModal
+        isOpen={Boolean(editingExpense)}
+        onClose={() => setEditingExpense(null)}
+        expense={editingExpense}
       />
     </div>
   );

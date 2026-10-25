@@ -8,6 +8,7 @@ import { Button } from '../components/common/Button';
 import { Modal } from '../components/common/Modal';
 import { ExpenseListModal } from '../components/common/ExpenseListModal';
 import { AddExpenseModal } from '../components/expenses/AddExpenseModal';
+import { EditExpenseModal } from '../components/expenses/EditExpenseModal';
 import { Tags, Plus, Trash2, ArrowUpRight, ChevronRight } from 'lucide-react';
 
 export const CategoriesPage = () => {
@@ -18,6 +19,7 @@ export const CategoriesPage = () => {
   const [categoryName, setCategoryName] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [addExpenseCategory, setAddExpenseCategory] = useState(null);
+  const [editingExpense, setEditingExpense] = useState(null);
 
   const { data: categories = [], isLoading } = useQuery({
     queryKey: ['categories', userDetails?.userId, currentYearMonth],
@@ -200,6 +202,9 @@ export const CategoriesPage = () => {
             setSelectedCategory(null);
             setAddExpenseCategory(catName);
           }}
+          onEditExpense={(expense) => {
+            setEditingExpense(expense);
+          }}
           onDeleteExpense={(expenseId) => {
             if (window.confirm('Delete this expense?')) {
               deleteExpenseMutation.mutate(expenseId);
@@ -216,6 +221,13 @@ export const CategoriesPage = () => {
           defaultCategory={addExpenseCategory}
         />
       )}
+
+      {/* Edit Expense Modal */}
+      <EditExpenseModal
+        isOpen={Boolean(editingExpense)}
+        onClose={() => setEditingExpense(null)}
+        expense={editingExpense}
+      />
     </div>
   );
 };

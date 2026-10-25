@@ -1,12 +1,12 @@
 import React from 'react';
 import { Badge } from '../common/Badge';
-import { Trash2, Calendar, Tag } from 'lucide-react';
+import { Trash2, Edit3, Calendar } from 'lucide-react';
 
-export const ExpenseCard = ({ expense, onDelete }) => {
+export const ExpenseCard = ({ expense, onEdit, onDelete }) => {
   return (
-    <div className="glass-card p-4 rounded-xl flex items-center justify-between gap-4 group">
+    <div className="glass-card p-4 rounded-xl flex items-center justify-between gap-4 group hover:border-slate-700/80 transition-all">
       <div className="flex items-center gap-3.5 min-w-0">
-        <div className="w-10 h-10 rounded-xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-center text-indigo-400 font-bold text-sm flex-shrink-0 group-hover:scale-105 transition-transform">
+        <div className="w-10 h-10 rounded-xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-center text-indigo-400 font-bold text-sm flex-shrink-0 group-hover:scale-105 group-hover:border-indigo-500/40 transition-all">
           ₹
         </div>
 
@@ -41,15 +41,27 @@ export const ExpenseCard = ({ expense, onDelete }) => {
           -₹{expense.amount.toLocaleString('en-IN')}
         </span>
 
-        {onDelete && (
-          <button
-            onClick={() => onDelete(expense.id)}
-            title="Delete Expense"
-            className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition opacity-0 group-hover:opacity-100"
-          >
-            <Trash2 size={15} />
-          </button>
-        )}
+        <div className="flex items-center gap-1">
+          {onEdit && (
+            <button
+              onClick={() => onEdit(expense)}
+              title="Edit Expense"
+              className="p-1.5 rounded-lg text-slate-500 hover:text-indigo-300 hover:bg-indigo-500/10 transition opacity-0 group-hover:opacity-100"
+            >
+              <Edit3 size={15} />
+            </button>
+          )}
+
+          {onDelete && (
+            <button
+              onClick={() => onDelete(expense.id)}
+              title="Delete Expense"
+              className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition opacity-0 group-hover:opacity-100"
+            >
+              <Trash2 size={15} />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

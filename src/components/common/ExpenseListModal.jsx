@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal } from './Modal';
 import { Button } from './Button';
 import { Badge } from './Badge';
-import { Calendar, Plus, ExternalLink, Receipt, Trash2 } from 'lucide-react';
+import { Calendar, Plus, ExternalLink, Receipt, Trash2, Edit3 } from 'lucide-react';
 
 export const ExpenseListModal = ({
   isOpen,
@@ -15,6 +15,7 @@ export const ExpenseListModal = ({
   totalAmount = null,
   onAddExpense = null,
   onNavigateToFeed = null,
+  onEditExpense = null,
   onDeleteExpense = null,
 }) => {
   const calculatedTotal =
@@ -87,10 +88,19 @@ export const ExpenseListModal = ({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2.5 flex-shrink-0">
+                <div className="flex items-center gap-2 flex-shrink-0">
                   <span className="text-xs font-bold text-rose-400 font-mono">
                     -₹{(expense.amount || 0).toLocaleString('en-IN')}
                   </span>
+                  {onEditExpense && (
+                    <button
+                      onClick={() => onEditExpense(expense)}
+                      className="p-1 rounded text-slate-500 hover:text-indigo-300 hover:bg-indigo-500/10 transition opacity-0 group-hover:opacity-100"
+                      title="Edit"
+                    >
+                      <Edit3 size={13} />
+                    </button>
+                  )}
                   {onDeleteExpense && (
                     <button
                       onClick={() => onDeleteExpense(expense.id)}

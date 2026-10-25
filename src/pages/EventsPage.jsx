@@ -8,6 +8,7 @@ import { Button } from '../components/common/Button';
 import { Modal } from '../components/common/Modal';
 import { ExpenseListModal } from '../components/common/ExpenseListModal';
 import { AddExpenseModal } from '../components/expenses/AddExpenseModal';
+import { EditExpenseModal } from '../components/expenses/EditExpenseModal';
 import { PartyPopper, Plus, Trash2, ArrowUpRight, ChevronRight } from 'lucide-react';
 
 export const EventsPage = () => {
@@ -18,6 +19,7 @@ export const EventsPage = () => {
   const [eventName, setEventName] = useState('');
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [addExpenseEvent, setAddExpenseEvent] = useState(null);
+  const [editingExpense, setEditingExpense] = useState(null);
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['events', userDetails?.userId],
@@ -198,6 +200,9 @@ export const EventsPage = () => {
             setSelectedEvent(null);
             setAddExpenseEvent(name);
           }}
+          onEditExpense={(expense) => {
+            setEditingExpense(expense);
+          }}
           onDeleteExpense={(expenseId) => {
             if (window.confirm('Delete this expense?')) {
               deleteExpenseMutation.mutate(expenseId);
@@ -214,6 +219,13 @@ export const EventsPage = () => {
           defaultEvent={addExpenseEvent}
         />
       )}
+
+      {/* Edit Expense Modal */}
+      <EditExpenseModal
+        isOpen={Boolean(editingExpense)}
+        onClose={() => setEditingExpense(null)}
+        expense={editingExpense}
+      />
     </div>
   );
 };

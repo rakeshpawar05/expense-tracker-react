@@ -9,6 +9,7 @@ import { Button } from '../components/common/Button';
 import { Modal } from '../components/common/Modal';
 import { ExpenseListModal } from '../components/common/ExpenseListModal';
 import { AddExpenseModal } from '../components/expenses/AddExpenseModal';
+import { EditExpenseModal } from '../components/expenses/EditExpenseModal';
 import { Calendar, Plus, Trash2, Edit3, ArrowRight, ExternalLink, ChevronRight, Check } from 'lucide-react';
 
 export const MonthsPage = () => {
@@ -22,6 +23,7 @@ export const MonthsPage = () => {
   const [earningInput, setEarningInput] = useState('');
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState(null);
 
   const { data: months = [], isLoading } = useQuery({
     queryKey: ['months', userDetails?.userId],
@@ -318,6 +320,9 @@ export const MonthsPage = () => {
             setSelectedMonth(null);
             setIsAddExpenseOpen(true);
           }}
+          onEditExpense={(expense) => {
+            setEditingExpense(expense);
+          }}
           onDeleteExpense={(expenseId) => {
             if (window.confirm('Delete this expense?')) {
               deleteExpenseMutation.mutate(expenseId);
@@ -333,6 +338,13 @@ export const MonthsPage = () => {
           onClose={() => setIsAddExpenseOpen(false)}
         />
       )}
+
+      {/* Edit Expense Modal */}
+      <EditExpenseModal
+        isOpen={Boolean(editingExpense)}
+        onClose={() => setEditingExpense(null)}
+        expense={editingExpense}
+      />
     </div>
   );
 };
