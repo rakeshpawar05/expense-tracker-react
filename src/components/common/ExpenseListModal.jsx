@@ -5,6 +5,7 @@ import { Badge } from './Badge';
 import { useAuth } from '../../context/AuthContext';
 import { AiCategoryAuditCard } from '../categories/AiCategoryAuditCard';
 import { AiEventAuditCard } from '../events/AiEventAuditCard';
+import { AiMonthDeltaCard } from '../months/AiMonthDeltaCard';
 import { Calendar, Plus, ExternalLink, Receipt, Trash2, Edit3 } from 'lucide-react';
 
 export const ExpenseListModal = ({
@@ -18,12 +19,13 @@ export const ExpenseListModal = ({
   totalAmount = null,
   categoryData = null,
   eventData = null,
+  monthData = null,
   onAddExpense = null,
   onNavigateToFeed = null,
   onEditExpense = null,
   onDeleteExpense = null,
 }) => {
-  const { userDetails, currentYearMonth } = useAuth();
+  const { userDetails, currentYearMonth, availableMonths } = useAuth();
   const calculatedTotal =
     totalAmount !== null
       ? totalAmount
@@ -70,6 +72,15 @@ export const ExpenseListModal = ({
           <AiEventAuditCard
             event={eventData}
             userId={userDetails?.userId}
+          />
+        )}
+
+        {/* Optional AI Month-over-Month Delta Audit */}
+        {monthData && (
+          <AiMonthDeltaCard
+            userId={userDetails?.userId}
+            currentYearMonth={monthData.yearMonth || monthData.name}
+            availableMonths={availableMonths}
           />
         )}
 

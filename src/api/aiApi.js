@@ -30,3 +30,9 @@ export const getEventAiInsight = async ({ userId, eventId, eventName }) => {
     params: { userId, eventId, eventName },
   });
 };
+
+export const getMonthDeltaAiInsight = async ({ userId, yearMonth, compareYearMonth }) => {
+  return await apiClient.get('/ai/month-delta', {
+    params: { userId, yearMonth, compareYearMonth },
+  });
+};

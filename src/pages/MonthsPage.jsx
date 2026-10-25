@@ -10,11 +10,12 @@ import { Modal } from '../components/common/Modal';
 import { ExpenseListModal } from '../components/common/ExpenseListModal';
 import { AddExpenseModal } from '../components/expenses/AddExpenseModal';
 import { EditExpenseModal } from '../components/expenses/EditExpenseModal';
-import { Calendar, Plus, Trash2, Edit3, ArrowRight, ExternalLink, ChevronRight, Check } from 'lucide-react';
+import { AiMonthDeltaCard } from '../components/months/AiMonthDeltaCard';
+import { Calendar, Plus, Trash2, Edit3, ArrowRight, ExternalLink, ChevronRight, Check, Sparkles } from 'lucide-react';
 
 export const MonthsPage = () => {
   const navigate = useNavigate();
-  const { userDetails, currentYearMonth, setCurrentYearMonth, fetchMonths } = useAuth();
+  const { userDetails, currentYearMonth, setCurrentYearMonth, availableMonths, fetchMonths } = useAuth();
   const queryClient = useQueryClient();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -130,6 +131,15 @@ export const MonthsPage = () => {
         </Button>
       </div>
 
+      {/* AI Month-over-Month Delta Analyzer Hub */}
+      {userDetails?.userId && (
+        <AiMonthDeltaCard
+          userId={userDetails.userId}
+          currentYearMonth={currentYearMonth}
+          availableMonths={availableMonths}
+        />
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {isLoading ? (
           <p className="text-xs text-slate-400 col-span-3 text-center py-8">Loading billing cycles...</p>
@@ -173,9 +183,17 @@ export const MonthsPage = () => {
                             </span>
                           )}
                         </h3>
-                        <p className="text-[11px] text-slate-400 font-mono">
-                          {expenseCount} transaction{expenseCount !== 1 ? 's' : ''}
-                        </p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <p className="text-[11px] text-slate-400 font-mono">
+                            {expenseCount} transaction{expenseCount !== 1 ? 's' : ''}
+                          </p>
+                          {expenseCount > 0 && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px]">
+                              <Sparkles size={9} className="text-indigo-400 animate-pulse" />
+                              <span>AI MoM</span>
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -310,6 +328,7 @@ export const MonthsPage = () => {
           badgeText="Month Breakdown"
           badgeVariant="success"
           expenses={activeSelectedMonth.expenses || []}
+          monthData={activeSelectedMonth}
           onNavigateToFeed={() => {
             const ym = activeSelectedMonth.yearMonth;
             setSelectedMonth(null);
