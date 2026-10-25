@@ -9,3 +9,12 @@ export const getMonthlyAiInsight = async (userId, yearMonth) => {
     params: { userId, yearMonth },
   });
 };
+
+export const parseExpenseTextApi = async ({ userId, text, defaultDate, yearMonth }) => {
+  return await apiClient.post('/ai/parse-expense', {
+    userId,
+    text,
+    defaultDate,
+    yearMonth,
+  });
+};

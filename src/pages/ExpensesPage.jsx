@@ -8,6 +8,7 @@ import { GlassCard } from '../components/common/GlassCard';
 import { Search, Filter, Loader2, Plus, Sparkles, Inbox } from 'lucide-react';
 import { AddExpenseModal } from '../components/expenses/AddExpenseModal';
 import { EditExpenseModal } from '../components/expenses/EditExpenseModal';
+import { AiSmartExpenseBar } from '../components/expenses/AiSmartExpenseBar';
 
 export const ExpensesPage = () => {
   const { userDetails, currentYearMonth } = useAuth();
@@ -15,7 +16,13 @@ export const ExpensesPage = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [modalInitialData, setModalInitialData] = useState(null);
   const [editingExpense, setEditingExpense] = useState(null);
+
+  const handleOpenModalWithData = (data) => {
+    setModalInitialData(data);
+    setIsAddModalOpen(true);
+  };
 
   const {
     data,
@@ -103,6 +110,9 @@ export const ExpensesPage = () => {
           <span>Add Expense</span>
         </Button>
       </div>
+
+      {/* AI Smart Expense Input Bar */}
+      <AiSmartExpenseBar onOpenModalWithData={handleOpenModalWithData} />
 
       {/* Filter / Search Bar */}
       <GlassCard className="p-3.5 flex flex-wrap items-center justify-between gap-3">
@@ -204,7 +214,11 @@ export const ExpensesPage = () => {
       {/* Modals */}
       <AddExpenseModal
         isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setModalInitialData(null);
+        }}
+        initialData={modalInitialData}
       />
 
       <EditExpenseModal
