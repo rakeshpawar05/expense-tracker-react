@@ -145,7 +145,7 @@ export const AddExpenseModal = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Record New Expense">
+    <Modal isOpen={isOpen} onClose={onClose} title="Record New Expense" maxWidth="max-w-lg">
       <div className="space-y-4">
         {/* AI Quick Auto-Fill Bar */}
         <div className="p-2.5 rounded-xl bg-slate-900/90 border border-indigo-500/30 flex items-center gap-2">

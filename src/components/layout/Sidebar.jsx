@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -29,6 +29,21 @@ const navItems = [
 export const Sidebar = ({ isMobileOpen, onCloseMobile }) => {
   const { userDetails, logout } = useAuth();
   const { isBackendActive } = usePing();
+
+  useEffect(() => {
+    if (isMobileOpen) {
+      const origBodyOverflow = document.body.style.overflow;
+      const origHtmlOverflow = document.documentElement.style.overflow;
+
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+
+      return () => {
+        document.body.style.overflow = origBodyOverflow || '';
+        document.documentElement.style.overflow = origHtmlOverflow || '';
+      };
+    }
+  }, [isMobileOpen]);
 
   return (
     <>

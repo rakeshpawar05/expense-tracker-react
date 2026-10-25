@@ -145,7 +145,7 @@ export const ChatbotPage = () => {
       </div>
 
       {/* Main Glassmorphism Chat Container */}
-      <GlassCard className="p-0 overflow-hidden flex flex-col h-[650px] border-slate-800/90 shadow-2xl relative">
+      <GlassCard className="p-0 overflow-hidden flex flex-col h-[calc(100dvh-13.5rem)] min-h-[460px] max-h-[720px] border-slate-800/90 shadow-2xl relative">
         {/* Ambient Glowing Background Elements */}
         <div className="absolute top-0 right-1/4 w-80 h-80 bg-indigo-600/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-10 left-10 w-72 h-72 bg-purple-600/5 rounded-full blur-3xl pointer-events-none" />

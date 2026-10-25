@@ -30,7 +30,7 @@ export const ExpenseListModal = ({
       : expenses.reduce((sum, item) => sum + (item.amount || 0), 0);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title}>
+    <Modal isOpen={isOpen} onClose={onClose} title={title} maxWidth="max-w-2xl">
       <div className="space-y-4">
         {/* Header Summary Bar */}
         <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
@@ -74,7 +74,7 @@ export const ExpenseListModal = ({
         )}
 
         {/* Expenses List */}
-        <div className="max-h-[360px] overflow-y-auto pr-1 space-y-2">
+        <div className="space-y-2">
           {expenses.length === 0 ? (
             <div className="text-center py-10 rounded-xl bg-slate-900/40 border border-slate-800/60">
               <Receipt size={28} className="mx-auto text-slate-600 mb-2" />
@@ -118,7 +118,7 @@ export const ExpenseListModal = ({
                   {onEditExpense && (
                     <button
                       onClick={() => onEditExpense(expense)}
-                      className="p-1 rounded text-slate-500 hover:text-indigo-300 hover:bg-indigo-500/10 transition opacity-0 group-hover:opacity-100"
+                      className="p-1 rounded text-slate-500 hover:text-indigo-300 hover:bg-indigo-500/10 transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                       title="Edit"
                     >
                       <Edit3 size={13} />
@@ -127,7 +127,7 @@ export const ExpenseListModal = ({
                   {onDeleteExpense && (
                     <button
                       onClick={() => onDeleteExpense(expense.id)}
-                      className="p-1 rounded text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition opacity-0 group-hover:opacity-100"
+                      className="p-1 rounded text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                       title="Delete"
                     >
                       <Trash2 size={13} />

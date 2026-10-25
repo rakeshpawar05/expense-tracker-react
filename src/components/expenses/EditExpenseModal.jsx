@@ -92,7 +92,7 @@ export const EditExpenseModal = ({ isOpen, onClose, expense }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Edit Expense">
+    <Modal isOpen={isOpen} onClose={onClose} title="Edit Expense" maxWidth="max-w-lg">
       <form onSubmit={handleSubmit} className="space-y-4 text-xs">
         <div>
           <label className="block text-slate-400 font-medium mb-1.5">Description *</label>
