@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getCategoriesApi, createCategoryApi, deleteCategoryApi } from '../api/categoryApi';
+import { deleteExpense } from '../api/expenseApi';
 import { GlassCard } from '../components/common/GlassCard';
 import { Button } from '../components/common/Button';
 import { Modal } from '../components/common/Modal';
-import { Badge } from '../components/common/Badge';
-import { Tags, Plus, Trash2, Layers } from 'lucide-react';
+import { ExpenseListModal } from '../components/common/ExpenseListModal';
+import { AddExpenseModal } from '../components/expenses/AddExpenseModal';
+import { Tags, Plus, Trash2, ArrowUpRight, ChevronRight } from 'lucide-react';
 
 export const CategoriesPage = () => {
   const { userDetails, currentYearMonth } = useAuth();
@@ -14,6 +16,8 @@ export const CategoriesPage = () => {
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [categoryName, setCategoryName] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [addExpenseCategory, setAddExpenseCategory] = useState(null);
 
   const { data: categories = [], isLoading } = useQuery({
     queryKey: ['categories', userDetails?.userId, currentYearMonth],
@@ -42,6 +46,18 @@ export const CategoriesPage = () => {
     mutationFn: (id) => deleteCategoryApi(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
+      if (selectedCategory?.id) {
+        setSelectedCategory(null);
+      }
+    },
+  });
+
+  const deleteExpenseMutation = useMutation({
+    mutationFn: (id) => deleteExpense(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['expenses'] });
     },
   });
 
@@ -51,12 +67,19 @@ export const CategoriesPage = () => {
     createMutation.mutate(categoryName.trim());
   };
 
+  // Find updated selected category from query cache if currently open
+  const activeSelectedCategory = selectedCategory
+    ? categories.find((c) => c.id === selectedCategory.id) || selectedCategory
+    : null;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-lg font-bold text-white tracking-tight">Spending Categories</h1>
-          <p className="text-xs text-slate-400">Manage budget buckets for this cycle</p>
+          <p className="text-xs text-slate-400">
+            Click any category to inspect its expenses for {currentYearMonth}
+          </p>
         </div>
 
         <Button onClick={() => setIsAddOpen(true)}>
@@ -83,14 +106,24 @@ export const CategoriesPage = () => {
               : 0;
 
             return (
-              <GlassCard key={cat.id} className="p-5 flex flex-col justify-between group">
+              <GlassCard
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat)}
+                className="p-5 flex flex-col justify-between group cursor-pointer hover:border-indigo-500/40 hover:bg-slate-900/80 transition-all"
+              >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold group-hover:scale-105 transition-transform">
                       <Tags size={18} />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-white tracking-tight">{cat.name}</h3>
+                      <h3 className="text-sm font-bold text-white tracking-tight flex items-center gap-1.5">
+                        {cat.name}
+                        <ChevronRight
+                          size={14}
+                          className="text-slate-500 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition"
+                        />
+                      </h3>
                       <span className="text-[11px] text-slate-400 font-mono">
                         {expenseCount} transaction{expenseCount !== 1 ? 's' : ''}
                       </span>
@@ -98,11 +131,13 @@ export const CategoriesPage = () => {
                   </div>
 
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       if (window.confirm(`Delete category "${cat.name}"?`)) {
                         deleteMutation.mutate(cat.id);
                       }
                     }}
+                    title="Delete Category"
                     className="p-1.5 text-slate-500 hover:text-rose-400 transition opacity-0 group-hover:opacity-100"
                   >
                     <Trash2 size={15} />
@@ -111,9 +146,12 @@ export const CategoriesPage = () => {
 
                 <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
                   <span className="text-slate-400">Total Spent</span>
-                  <span className="font-bold text-white font-mono">
-                    ₹{totalAmount.toLocaleString('en-IN')}
-                  </span>
+                  <div className="flex items-center gap-1">
+                    <span className="font-bold text-white font-mono">
+                      ₹{totalAmount.toLocaleString('en-IN')}
+                    </span>
+                    <ArrowUpRight size={13} className="text-indigo-400 opacity-60 group-hover:opacity-100" />
+                  </div>
                 </div>
               </GlassCard>
             );
@@ -121,6 +159,7 @@ export const CategoriesPage = () => {
         )}
       </div>
 
+      {/* Add New Category Modal */}
       <Modal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} title="Create New Category">
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div>
@@ -145,6 +184,38 @@ export const CategoriesPage = () => {
           </div>
         </form>
       </Modal>
+
+      {/* View Category Expenses Modal */}
+      {activeSelectedCategory && (
+        <ExpenseListModal
+          isOpen={Boolean(activeSelectedCategory)}
+          onClose={() => setSelectedCategory(null)}
+          title={`Category: ${activeSelectedCategory.name}`}
+          subtitle={`Billing cycle: ${currentYearMonth}`}
+          badgeText="Category Expenses"
+          badgeVariant="primary"
+          expenses={activeSelectedCategory.expenses || []}
+          onAddExpense={() => {
+            const catName = activeSelectedCategory.name;
+            setSelectedCategory(null);
+            setAddExpenseCategory(catName);
+          }}
+          onDeleteExpense={(expenseId) => {
+            if (window.confirm('Delete this expense?')) {
+              deleteExpenseMutation.mutate(expenseId);
+            }
+          }}
+        />
+      )}
+
+      {/* Add Expense Pre-selected for Category */}
+      {addExpenseCategory && (
+        <AddExpenseModal
+          isOpen={Boolean(addExpenseCategory)}
+          onClose={() => setAddExpenseCategory(null)}
+          defaultCategory={addExpenseCategory}
+        />
+      )}
     </div>
   );
 };

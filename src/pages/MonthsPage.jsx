@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMonthsApi, createMonthApi, updateMonthApi, deleteMonthApi } from '../api/monthApi';
+import { deleteExpense } from '../api/expenseApi';
 import { GlassCard } from '../components/common/GlassCard';
 import { Button } from '../components/common/Button';
 import { Modal } from '../components/common/Modal';
-import { Calendar, Plus, Trash2, Edit3, DollarSign } from 'lucide-react';
+import { ExpenseListModal } from '../components/common/ExpenseListModal';
+import { AddExpenseModal } from '../components/expenses/AddExpenseModal';
+import { Calendar, Plus, Trash2, Edit3, ArrowRight, ExternalLink, ChevronRight, Check } from 'lucide-react';
 
 export const MonthsPage = () => {
+  const navigate = useNavigate();
   const { userDetails, currentYearMonth, setCurrentYearMonth, fetchMonths } = useAuth();
   const queryClient = useQueryClient();
 
@@ -15,6 +20,8 @@ export const MonthsPage = () => {
   const [editingMonth, setEditingMonth] = useState(null);
   const [yearMonthInput, setYearMonthInput] = useState(currentYearMonth);
   const [earningInput, setEarningInput] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState(null);
+  const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
 
   const { data: months = [], isLoading } = useQuery({
     queryKey: ['months', userDetails?.userId],
@@ -57,6 +64,18 @@ export const MonthsPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['months'] });
       fetchMonths(userDetails.userId);
+      if (selectedMonth?.id) {
+        setSelectedMonth(null);
+      }
+    },
+  });
+
+  const deleteExpenseMutation = useMutation({
+    mutationFn: (id) => deleteExpense(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['months'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['expenses'] });
     },
   });
 
@@ -84,12 +103,23 @@ export const MonthsPage = () => {
     });
   };
 
+  const handleGoToExpenses = (yearMonth) => {
+    setCurrentYearMonth(yearMonth);
+    navigate('/expenses');
+  };
+
+  const activeSelectedMonth = selectedMonth
+    ? months.find((m) => m.id === selectedMonth.id) || selectedMonth
+    : null;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-lg font-bold text-white tracking-tight">Billing Cycles & Months</h1>
-          <p className="text-xs text-slate-400">Manage monthly income targets and budget periods</p>
+          <p className="text-xs text-slate-400">
+            Click any month to inspect its expenses or jump straight to its full expense feed
+          </p>
         </div>
 
         <Button onClick={handleOpenCreate}>
@@ -111,57 +141,114 @@ export const MonthsPage = () => {
         ) : (
           months.map((m) => {
             const isCurrent = m.yearMonth === currentYearMonth;
+            const expenseCount = m.expenses ? m.expenses.length : 0;
+            const totalSpent = m.expenses
+              ? m.expenses.reduce((sum, e) => sum + (e.amount || 0), 0)
+              : 0;
+
             return (
               <GlassCard
                 key={m.id}
-                className={`p-5 flex flex-col justify-between group cursor-pointer ${
-                  isCurrent ? 'border-indigo-500/50 bg-indigo-950/20 glow-card-primary' : ''
+                onClick={() => setSelectedMonth(m)}
+                className={`p-5 flex flex-col justify-between group cursor-pointer transition-all ${
+                  isCurrent
+                    ? 'border-indigo-500/50 bg-indigo-950/20 glow-card-primary'
+                    : 'hover:border-indigo-500/30 hover:bg-slate-900/80'
                 }`}
-                onClick={() => setCurrentYearMonth(m.yearMonth)}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 text-indigo-400 flex items-center justify-center font-bold">
-                      <Calendar size={18} />
+                <div>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 text-indigo-400 flex items-center justify-center font-bold group-hover:scale-105 transition-transform">
+                        <Calendar size={18} />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                          {m.name || m.yearMonth}
+                          {isCurrent && (
+                            <span className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] font-bold">
+                              Active
+                            </span>
+                          )}
+                        </h3>
+                        <p className="text-[11px] text-slate-400 font-mono">
+                          {expenseCount} transaction{expenseCount !== 1 ? 's' : ''}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                        {m.name || m.yearMonth}
-                        {isCurrent && (
-                          <span className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] font-bold">
-                            Active
-                          </span>
-                        )}
-                      </h3>
-                      <p className="text-[11px] text-slate-400 font-mono">Cycle ID: #{m.id}</p>
+
+                    <div
+                      className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button
+                        onClick={() => handleOpenEdit(m)}
+                        title="Edit Month Income"
+                        className="p-1.5 text-slate-400 hover:text-white transition"
+                      >
+                        <Edit3 size={15} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm(`Delete month cycle "${m.name}"?`)) {
+                            deleteMutation.mutate(m.id);
+                          }
+                        }}
+                        title="Delete Month Cycle"
+                        className="p-1.5 text-slate-400 hover:text-rose-400 transition"
+                      >
+                        <Trash2 size={15} />
+                      </button>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      onClick={() => handleOpenEdit(m)}
-                      className="p-1.5 text-slate-400 hover:text-white transition"
-                    >
-                      <Edit3 size={15} />
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (window.confirm(`Delete month cycle "${m.name}"?`)) {
-                          deleteMutation.mutate(m.id);
-                        }
-                      }}
-                      className="p-1.5 text-slate-400 hover:text-rose-400 transition"
-                    >
-                      <Trash2 size={15} />
-                    </button>
+                  <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-800 text-xs">
+                    <div>
+                      <span className="text-[11px] text-slate-400 block">Monthly Income</span>
+                      <span className="font-bold text-emerald-400 font-mono text-xs">
+                        ₹{(m.earning || 0).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[11px] text-slate-400 block">Total Spent</span>
+                      <span className="font-bold text-rose-400 font-mono text-xs">
+                        ₹{totalSpent.toLocaleString('en-IN')}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Monthly Earning (Income)</span>
-                  <span className="font-bold text-emerald-400 font-mono">
-                    ₹{(m.earning || 0).toLocaleString('en-IN')}
-                  </span>
+                <div
+                  className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    onClick={() => setCurrentYearMonth(m.yearMonth)}
+                    className={`text-[11px] font-medium flex items-center gap-1 transition ${
+                      isCurrent
+                        ? 'text-indigo-400 font-semibold cursor-default'
+                        : 'text-slate-400 hover:text-indigo-300'
+                    }`}
+                  >
+                    {isCurrent ? (
+                      <>
+                        <Check size={12} className="text-indigo-400" /> Currently Selected
+                      </>
+                    ) : (
+                      'Set as Active Month'
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => handleGoToExpenses(m.yearMonth)}
+                    className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 group/btn transition"
+                  >
+                    <span>View Expenses</span>
+                    <ArrowRight
+                      size={13}
+                      className="group-hover/btn:translate-x-0.5 transition-transform"
+                    />
+                  </button>
                 </div>
               </GlassCard>
             );
@@ -169,6 +256,7 @@ export const MonthsPage = () => {
         )}
       </div>
 
+      {/* Create / Edit Month Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -209,6 +297,42 @@ export const MonthsPage = () => {
           </div>
         </form>
       </Modal>
+
+      {/* View Month Expenses Modal */}
+      {activeSelectedMonth && (
+        <ExpenseListModal
+          isOpen={Boolean(activeSelectedMonth)}
+          onClose={() => setSelectedMonth(null)}
+          title={`Month Cycle: ${activeSelectedMonth.name || activeSelectedMonth.yearMonth}`}
+          subtitle={`Income Baseline: ₹${(activeSelectedMonth.earning || 0).toLocaleString('en-IN')}`}
+          badgeText="Month Breakdown"
+          badgeVariant="success"
+          expenses={activeSelectedMonth.expenses || []}
+          onNavigateToFeed={() => {
+            const ym = activeSelectedMonth.yearMonth;
+            setSelectedMonth(null);
+            handleGoToExpenses(ym);
+          }}
+          onAddExpense={() => {
+            setCurrentYearMonth(activeSelectedMonth.yearMonth);
+            setSelectedMonth(null);
+            setIsAddExpenseOpen(true);
+          }}
+          onDeleteExpense={(expenseId) => {
+            if (window.confirm('Delete this expense?')) {
+              deleteExpenseMutation.mutate(expenseId);
+            }
+          }}
+        />
+      )}
+
+      {/* Add Expense Modal */}
+      {isAddExpenseOpen && (
+        <AddExpenseModal
+          isOpen={isAddExpenseOpen}
+          onClose={() => setIsAddExpenseOpen(false)}
+        />
+      )}
     </div>
   );
 };

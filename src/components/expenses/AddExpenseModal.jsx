@@ -7,7 +7,7 @@ import { getEventsApi } from '../../api/eventApi';
 import { useAuth } from '../../context/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 
-export const AddExpenseModal = ({ isOpen, onClose }) => {
+export const AddExpenseModal = ({ isOpen, onClose, defaultCategory = '', defaultEvent = '' }) => {
   const { userDetails, currentYearMonth } = useAuth();
   const queryClient = useQueryClient();
 
@@ -17,6 +17,7 @@ export const AddExpenseModal = ({ isOpen, onClose }) => {
   const [categoryName, setCategoryName] = useState('');
   const [customCategory, setCustomCategory] = useState('');
   const [eventName, setEventName] = useState('');
+  const [customEvent, setCustomEvent] = useState('');
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [events, setEvents] = useState([]);
@@ -28,18 +29,27 @@ export const AddExpenseModal = ({ isOpen, onClose }) => {
         .then((res) => {
           if (Array.isArray(res.data)) {
             setCategories(res.data);
-            if (res.data.length > 0) setCategoryName(res.data[0].name);
+            if (defaultCategory) {
+              setCategoryName(defaultCategory);
+            } else if (res.data.length > 0 && !categoryName) {
+              setCategoryName(res.data[0].name);
+            }
           }
         })
         .catch(console.error);
 
       getEventsApi(userDetails.userId)
         .then((res) => {
-          if (Array.isArray(res.data)) setEvents(res.data);
+          if (Array.isArray(res.data)) {
+            setEvents(res.data);
+            if (defaultEvent) {
+              setEventName(defaultEvent);
+            }
+          }
         })
         .catch(console.error);
     }
-  }, [isOpen, userDetails?.userId, currentYearMonth]);
+  }, [isOpen, userDetails?.userId, currentYearMonth, defaultCategory, defaultEvent]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,27 +58,31 @@ export const AddExpenseModal = ({ isOpen, onClose }) => {
     try {
       setLoading(true);
       const chosenCategory = categoryName === '__NEW__' ? customCategory.trim() : categoryName;
+      const chosenEvent = eventName === '__NEW__' ? customEvent.trim() : eventName;
 
       await createExpense({
         description: description.trim(),
         amount: parseInt(amount, 10),
         date,
         categoryName: chosenCategory || 'General',
-        eventName: eventName.trim() || null,
+        eventName: chosenEvent.trim() ? chosenEvent.trim() : null,
         userId: userDetails.userId,
         yearMonth: currentYearMonth,
       });
 
-      // Invalidate queries so dashboard and feed update immediately
+      // Invalidate queries so dashboard, expenses feed, categories, and events update immediately
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['months'] });
 
       // Reset form
       setDescription('');
       setAmount('');
       setCustomCategory('');
       setEventName('');
+      setCustomEvent('');
       onClose();
     } catch (err) {
       console.error('Failed to create expense:', err);
@@ -119,6 +133,7 @@ export const AddExpenseModal = ({ isOpen, onClose }) => {
           </div>
         </div>
 
+        {/* Category Dropdown */}
         <div>
           <label className="block text-slate-400 font-medium mb-1.5">Category</label>
           <select
@@ -149,22 +164,37 @@ export const AddExpenseModal = ({ isOpen, onClose }) => {
           </div>
         )}
 
+        {/* Event Dropdown */}
         <div>
-          <label className="block text-slate-400 font-medium mb-1.5">Event Tag (Optional)</label>
-          <input
-            type="text"
-            list="eventsList"
+          <label className="block text-slate-400 font-medium mb-1.5">Event (Optional)</label>
+          <select
             value={eventName}
             onChange={(e) => setEventName(e.target.value)}
-            placeholder="e.g. Goa Vacation, Diwali, Wedding"
-            className="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-          />
-          <datalist id="eventsList">
+            className="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-indigo-500 cursor-pointer"
+          >
+            <option value="">-- No Event Tag --</option>
             {events.map((ev) => (
-              <option key={ev.id} value={ev.name} />
+              <option key={ev.id} value={ev.name}>
+                {ev.name}
+              </option>
             ))}
-          </datalist>
+            <option value="__NEW__">+ Create New Event...</option>
+          </select>
         </div>
+
+        {eventName === '__NEW__' && (
+          <div>
+            <label className="block text-slate-400 font-medium mb-1.5">New Event Name</label>
+            <input
+              type="text"
+              required
+              value={customEvent}
+              onChange={(e) => setCustomEvent(e.target.value)}
+              placeholder="e.g. Goa Vacation, Diwali, Wedding"
+              className="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+        )}
 
         <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-800">
           <Button type="button" variant="ghost" onClick={onClose} disabled={loading}>
