@@ -3,3 +3,9 @@ import apiClient from './client';
 export const sendAiChat = async (userId, message) => {
   return await apiClient.post('/ai/chat', { userId, message });
 };
+
+export const getMonthlyAiInsight = async (userId, yearMonth) => {
+  return await apiClient.get('/ai/monthly-insight', {
+    params: { userId, yearMonth },
+  });
+};

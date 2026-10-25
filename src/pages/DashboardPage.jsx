@@ -5,8 +5,8 @@ import { getDashboardComplete } from '../api/dashboardApi';
 import { KpiCard } from '../components/dashboard/KpiCard';
 import { CategoryDonut } from '../components/dashboard/CategoryDonut';
 import { TopExpensesCard } from '../components/dashboard/TopExpensesCard';
-import { ArrowUpRight, ArrowDownRight, Wallet, Activity, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { AiMonthlyInsightCard } from '../components/dashboard/AiMonthlyInsightCard';
+import { ArrowUpRight, ArrowDownRight, Wallet, Activity } from 'lucide-react';
 
 export const DashboardPage = () => {
   const { userDetails, currentYearMonth } = useAuth();
@@ -31,32 +31,20 @@ export const DashboardPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Welcome Banner & AI Tip */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-2xl glass-panel border border-slate-800">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30 flex-shrink-0">
-            <Sparkles size={20} />
-          </div>
-          <div>
-            <h1 className="text-base font-bold text-white tracking-tight">
-              Welcome back, {userDetails?.name || 'User'} 👋
-            </h1>
-            <p className="text-xs text-slate-400">
-              {spendPercentage > 80
-                ? '⚠️ You have spent over 80% of your recorded income this month.'
-                : '✨ Your cashflow is looking healthy for this cycle.'}
-            </p>
-          </div>
+      {/* Header Toolbar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+        <div>
+          <h1 className="text-lg font-bold text-white tracking-tight">
+            Financial Dashboard
+          </h1>
+          <p className="text-xs text-slate-400">
+            Real-time overview and budget analysis for <span className="text-indigo-300 font-semibold">{currentYearMonth}</span>
+          </p>
         </div>
-
-        <Link
-          to="/chatbot"
-          className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 flex items-center gap-1.5 transition"
-        >
-          <span>Ask AI Assistant</span>
-          <ArrowUpRight size={14} />
-        </Link>
       </div>
+
+      {/* AI Monthly Intelligence Banner */}
+      <AiMonthlyInsightCard />
 
       {/* KPI Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
