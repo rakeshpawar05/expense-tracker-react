@@ -1,10 +1,17 @@
-import axiosInstance from "./Axios";
+import apiClient from './client';
 
-export const createEvent = async (event) =>
-  await axiosInstance.post("/events", event);
+export const getEventsApi = async (userId) => {
+  return await apiClient.get('/events', { params: { userId } });
+};
 
-export const getEvents = async (userId) =>
-  await axiosInstance.get("/events", { params: { userId } });
+export const createEventApi = async (eventData) => {
+  return await apiClient.post('/events', eventData);
+};
 
-export const deleteEvent = async (id) =>
-  await axiosInstance.delete(`/events/${id}`);
+export const updateEventApi = async (id, eventData) => {
+  return await apiClient.put(`/events/${id}`, eventData);
+};
+
+export const deleteEventApi = async (id) => {
+  return await apiClient.delete(`/events/${id}`);
+};

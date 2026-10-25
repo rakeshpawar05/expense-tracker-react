@@ -1,10 +1,13 @@
-import axiosInstance from "./Axios";
+import apiClient from './client';
 
-export const createCategory = async (category) =>
-  await axiosInstance.post("/categories", category);
+export const getCategoriesApi = async (userId, yearMonth) => {
+  return await apiClient.get('/categories', { params: { userId, yearMonth } });
+};
 
-export const getCategories = async (userId, yearMonth) =>
-  await axiosInstance.get("/categories", { params: { yearMonth, userId } });
+export const createCategoryApi = async (categoryData) => {
+  return await apiClient.post('/categories', categoryData);
+};
 
-export const deleteCategory = async (id) =>
-  await axiosInstance.delete(`/categories/${id}`);
+export const deleteCategoryApi = async (id) => {
+  return await apiClient.delete(`/categories/${id}`);
+};

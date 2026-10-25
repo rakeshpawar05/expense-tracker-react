@@ -1,6 +1,7 @@
-import axiosInstance from "./Axios";
+import apiClient from './client';
 
-// wrapper for the backend dashboard/complete endpoint
-export const getDashboardData = async ({ userId, yearMonth }) => {
-  return await axiosInstance.get("/dashboard/complete", { params: { userId, yearMonth } });
+export const getDashboardComplete = async (userId, yearMonth) => {
+  return await apiClient.get('/dashboard/complete', {
+    params: { userId, yearMonth },
+  });
 };

@@ -1,13 +1,25 @@
-import axiosInstance from "./Axios";
+import apiClient from './client';
 
-export const createSaving = async (saving) =>
-  await axiosInstance.post("/savings", saving);
+export const getSavingsApi = async (userId, yearMonth, categoryName, savingName) => {
+  return await apiClient.get('/savings', {
+    params: { userId, yearMonth, categoryName, savingName },
+  });
+};
 
-export const getSavings = async (params) =>
-  await axiosInstance.get("/savings", { params });
+export const getTop5SavingsApi = async (userId, yearMonth) => {
+  return await apiClient.get('/savings/top5', {
+    params: { userId, yearMonth },
+  });
+};
 
-export const updateSaving = async (id, saving) =>
-  await axiosInstance.put(`/savings/${id}`, saving);
+export const createSavingApi = async (savingData) => {
+  return await apiClient.post('/savings', savingData);
+};
 
-export const deleteSaving = async (id) =>
-  await axiosInstance.delete(`/savings/${id}`);
+export const updateSavingApi = async (id, savingData) => {
+  return await apiClient.put(`/savings/${id}`, savingData);
+};
+
+export const deleteSavingApi = async (id) => {
+  return await apiClient.delete(`/savings/${id}`);
+};

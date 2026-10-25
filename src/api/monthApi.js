@@ -1,17 +1,21 @@
-import axiosInstance from "./Axios";
+import apiClient from './client';
 
-// export names aligned with Api suffix to match previous AxiosService usage
-export const getMonthNamesApi = async (userId) =>
-  await axiosInstance.get(`/months/getNames`, { params: { userId } });
+export const getMonthNamesApi = async (userId) => {
+  return await apiClient.get('/months/getNames', { params: { userId } });
+};
 
-export const getMonthsApi = async (userId) =>
-  await axiosInstance.get(`/months`, { params: { userId } });
+export const getMonthsApi = async (userId, yearMonth) => {
+  return await apiClient.get('/months', { params: { userId, yearMonth } });
+};
 
-export const createMonthApi = async (month) =>
-  await axiosInstance.post("/months", month);
+export const createMonthApi = async (monthData) => {
+  return await apiClient.post('/months', monthData);
+};
 
-export const updateMonthApi = async (id, month) =>
-  await axiosInstance.put(`/months/${id}`, month);
+export const updateMonthApi = async (id, monthData) => {
+  return await apiClient.put(`/months/${id}`, monthData);
+};
 
-export const deleteMonthApi = async (id) =>
-  await axiosInstance.delete(`/months/${id}`);
+export const deleteMonthApi = async (id) => {
+  return await apiClient.delete(`/months/${id}`);
+};

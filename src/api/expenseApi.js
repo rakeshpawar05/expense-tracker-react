@@ -1,17 +1,27 @@
-import axiosInstance from "./Axios";
+import apiClient from './client';
 
-export const createExpense = async (expense) =>
-  await axiosInstance.post("/expenses", expense);
+export const searchExpenses = async (params) => {
+  return await apiClient.get('/expenses', { params });
+};
 
-// Standard expense list with optional filters
-export const getExpenses = async (params) =>
-  await axiosInstance.get("/expenses", { params });
+export const getExpenseFeedPaginated = async (params) => {
+  return await apiClient.get('/expenses/feed/paginated', { params });
+};
 
-export const getTop5Expenses = async (userId, yearMonth) =>
-  await axiosInstance.get(`/expenses/top5`, { params: { userId, yearMonth } });
+export const getTop5Expenses = async (userId, yearMonth) => {
+  return await apiClient.get('/expenses/top5', {
+    params: { userId, yearMonth },
+  });
+};
 
-export const updateExpense = async (id, expense) =>
-  await axiosInstance.put(`/expenses/${id}`, expense);
+export const createExpense = async (expenseData) => {
+  return await apiClient.post('/expenses', expenseData);
+};
 
-export const deleteExpense = async (id) =>
-  await axiosInstance.delete(`/expenses/${id}`);
+export const updateExpense = async (id, expenseData) => {
+  return await apiClient.put(`/expenses/${id}`, expenseData);
+};
+
+export const deleteExpense = async (id) => {
+  return await apiClient.delete(`/expenses/${id}`);
+};
