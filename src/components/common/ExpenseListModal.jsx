@@ -4,6 +4,7 @@ import { Button } from './Button';
 import { Badge } from './Badge';
 import { useAuth } from '../../context/AuthContext';
 import { AiCategoryAuditCard } from '../categories/AiCategoryAuditCard';
+import { AiEventAuditCard } from '../events/AiEventAuditCard';
 import { Calendar, Plus, ExternalLink, Receipt, Trash2, Edit3 } from 'lucide-react';
 
 export const ExpenseListModal = ({
@@ -16,6 +17,7 @@ export const ExpenseListModal = ({
   expenses = [],
   totalAmount = null,
   categoryData = null,
+  eventData = null,
   onAddExpense = null,
   onNavigateToFeed = null,
   onEditExpense = null,
@@ -59,6 +61,14 @@ export const ExpenseListModal = ({
           <AiCategoryAuditCard
             category={categoryData}
             yearMonth={currentYearMonth}
+            userId={userDetails?.userId}
+          />
+        )}
+
+        {/* Optional AI Event Debrief */}
+        {eventData && (
+          <AiEventAuditCard
+            event={eventData}
             userId={userDetails?.userId}
           />
         )}

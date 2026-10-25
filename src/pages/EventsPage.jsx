@@ -9,7 +9,7 @@ import { Modal } from '../components/common/Modal';
 import { ExpenseListModal } from '../components/common/ExpenseListModal';
 import { AddExpenseModal } from '../components/expenses/AddExpenseModal';
 import { EditExpenseModal } from '../components/expenses/EditExpenseModal';
-import { PartyPopper, Plus, Trash2, ArrowUpRight, ChevronRight } from 'lucide-react';
+import { PartyPopper, Plus, Trash2, ArrowUpRight, ChevronRight, Sparkles } from 'lucide-react';
 
 export const EventsPage = () => {
   const { userDetails } = useAuth();
@@ -124,9 +124,17 @@ export const EventsPage = () => {
                           className="text-slate-500 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition"
                         />
                       </h3>
-                      <p className="text-[11px] text-slate-400 font-mono">
-                        {expenseCount} transaction{expenseCount !== 1 ? 's' : ''}
-                      </p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <p className="text-[11px] text-slate-400 font-mono">
+                          {expenseCount} transaction{expenseCount !== 1 ? 's' : ''}
+                        </p>
+                        {expenseCount > 0 && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-purple-500/10 border border-purple-500/20 text-purple-300 text-[10px]">
+                            <Sparkles size={10} className="text-purple-400 animate-pulse" />
+                            <span>AI Debrief</span>
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -195,6 +203,7 @@ export const EventsPage = () => {
           badgeText="Event Expenses"
           badgeVariant="purple"
           expenses={activeSelectedEvent.expenses || []}
+          eventData={activeSelectedEvent}
           onAddExpense={() => {
             const name = activeSelectedEvent.name;
             setSelectedEvent(null);

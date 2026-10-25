@@ -24,3 +24,9 @@ export const getCategoryAiInsight = async ({ userId, categoryId, categoryName, y
     params: { userId, categoryId, categoryName, yearMonth },
   });
 };
+
+export const getEventAiInsight = async ({ userId, eventId, eventName }) => {
+  return await apiClient.get('/ai/event-insight', {
+    params: { userId, eventId, eventName },
+  });
+};
