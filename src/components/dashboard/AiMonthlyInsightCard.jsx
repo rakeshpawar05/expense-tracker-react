@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../context/AuthContext';
 import { getMonthlyAiInsight } from '../../api/aiApi';
@@ -15,10 +15,30 @@ import {
   ShieldCheck,
   AlertTriangle,
   Flame,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 
 export const AiMonthlyInsightCard = () => {
   const { userDetails, currentYearMonth } = useAuth();
+
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('expenseflow_dashboard_ai_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleCollapse = () => {
+    setIsCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('expenseflow_dashboard_ai_collapsed', String(next));
+      } catch {}
+      return next;
+    });
+  };
 
   const {
     data: res,
@@ -168,64 +188,103 @@ export const AiMonthlyInsightCard = () => {
               <span>Ask AI</span>
               <ArrowUpRight size={13} />
             </Link>
+
+            {/* Collapse / Expand Toggle Button */}
+            <button
+              onClick={toggleCollapse}
+              title={isCollapsed ? 'Expand AI Briefing' : 'Minimize AI Briefing'}
+              className="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 flex items-center gap-1 text-xs transition"
+            >
+              <span className="hidden sm:inline text-[11px] font-medium">
+                {isCollapsed ? 'Expand' : 'Minimize'}
+              </span>
+              {isCollapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+            </button>
           </div>
         </div>
 
-        {/* Insight Headline & Body */}
-        <div className="space-y-1.5 relative z-10 pt-1">
-          <h4 className="text-sm sm:text-base font-bold text-white tracking-tight flex items-center gap-2">
-            <span>{insight.headline}</span>
-          </h4>
-          <p className="text-xs text-slate-300 leading-relaxed max-w-4xl">
-            {insight.insight}
-          </p>
-        </div>
-
-        {/* Key Takeaway Callout Box */}
-        {insight.keyTakeaway && (
-          <div className="relative z-10 p-3 rounded-xl bg-slate-900/80 border border-slate-800/90 flex items-start gap-2.5">
-            <div className="w-6 h-6 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 flex-shrink-0 mt-0.5">
-              <Lightbulb size={13} />
-            </div>
-            <div className="text-xs text-slate-300 flex-1">
-              <span className="font-semibold text-amber-300 mr-1.5">Key Takeaway:</span>
-              <span>{insight.keyTakeaway}</span>
+        {/* Collapsed Compact 1-Line Preview */}
+        {isCollapsed ? (
+          <div
+            onClick={toggleCollapse}
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 text-xs text-slate-400 cursor-pointer hover:text-slate-300 transition relative z-10"
+          >
+            <p className="truncate text-slate-300 text-xs font-medium max-w-2xl flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse flex-shrink-0" />
+              <span className="text-indigo-200 font-semibold">{insight.headline}</span>
+            </p>
+            <div className="flex items-center gap-3 font-mono text-[11px] flex-shrink-0 self-end sm:self-auto">
+              <span className="text-rose-400 font-bold">
+                -₹{(insight.totalExpense || 0).toLocaleString('en-IN')}
+              </span>
+              <span className="text-indigo-300 font-bold">
+                {(insight.spendPercentage || 0).toFixed(1)}% spent
+              </span>
+              <span className="text-[10px] text-indigo-400 flex items-center gap-0.5 hover:underline font-sans font-medium">
+                <span>View Full Briefing</span>
+                <ChevronDown size={12} />
+              </span>
             </div>
           </div>
+        ) : (
+          <>
+            {/* Insight Headline & Body */}
+            <div className="space-y-1.5 relative z-10 pt-1">
+              <h4 className="text-sm sm:text-base font-bold text-white tracking-tight flex items-center gap-2">
+                <span>{insight.headline}</span>
+              </h4>
+              <p className="text-xs text-slate-300 leading-relaxed max-w-4xl">
+                {insight.insight}
+              </p>
+            </div>
+
+            {/* Key Takeaway Callout Box */}
+            {insight.keyTakeaway && (
+              <div className="relative z-10 p-3 rounded-xl bg-slate-900/80 border border-slate-800/90 flex items-start gap-2.5">
+                <div className="w-6 h-6 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 flex-shrink-0 mt-0.5">
+                  <Lightbulb size={13} />
+                </div>
+                <div className="text-xs text-slate-300 flex-1">
+                  <span className="font-semibold text-amber-300 mr-1.5">Key Takeaway:</span>
+                  <span>{insight.keyTakeaway}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Financial Metrics Summary Strip */}
+            <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3 border-t border-slate-800/80 text-[11px]">
+              <div className="p-2 rounded-xl bg-slate-900/60 border border-slate-800/60">
+                <span className="text-slate-400 block text-[10px]">Income Baseline</span>
+                <span className="font-mono font-bold text-emerald-400 text-xs">
+                  ₹{(insight.totalEarning || 0).toLocaleString('en-IN')}
+                </span>
+              </div>
+
+              <div className="p-2 rounded-xl bg-slate-900/60 border border-slate-800/60">
+                <span className="text-slate-400 block text-[10px]">Total Outflow</span>
+                <span className="font-mono font-bold text-rose-400 text-xs">
+                  -₹{(insight.totalExpense || 0).toLocaleString('en-IN')}
+                </span>
+              </div>
+
+              <div className="p-2 rounded-xl bg-slate-900/60 border border-slate-800/60">
+                <span className="text-slate-400 block text-[10px]">Budget Spent</span>
+                <span className="font-mono font-bold text-indigo-300 text-xs">
+                  {(insight.spendPercentage || 0).toFixed(1)}%
+                </span>
+              </div>
+
+              <div className="p-2 rounded-xl bg-slate-900/60 border border-slate-800/60">
+                <span className="text-slate-400 block text-[10px]">Top Outflow</span>
+                <span className="font-mono font-bold text-white text-xs truncate block" title={insight.topCategory}>
+                  {insight.topCategory && insight.topCategory !== 'None'
+                    ? `${insight.topCategory} (₹${(insight.topCategoryAmount || 0).toLocaleString('en-IN')})`
+                    : 'No Outflows'}
+                </span>
+              </div>
+            </div>
+          </>
         )}
-
-        {/* Financial Metrics Summary Strip */}
-        <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3 border-t border-slate-800/80 text-[11px]">
-          <div className="p-2 rounded-xl bg-slate-900/60 border border-slate-800/60">
-            <span className="text-slate-400 block text-[10px]">Income Baseline</span>
-            <span className="font-mono font-bold text-emerald-400 text-xs">
-              ₹{(insight.totalEarning || 0).toLocaleString('en-IN')}
-            </span>
-          </div>
-
-          <div className="p-2 rounded-xl bg-slate-900/60 border border-slate-800/60">
-            <span className="text-slate-400 block text-[10px]">Total Outflow</span>
-            <span className="font-mono font-bold text-rose-400 text-xs">
-              -₹{(insight.totalExpense || 0).toLocaleString('en-IN')}
-            </span>
-          </div>
-
-          <div className="p-2 rounded-xl bg-slate-900/60 border border-slate-800/60">
-            <span className="text-slate-400 block text-[10px]">Budget Spent</span>
-            <span className="font-mono font-bold text-indigo-300 text-xs">
-              {(insight.spendPercentage || 0).toFixed(1)}%
-            </span>
-          </div>
-
-          <div className="p-2 rounded-xl bg-slate-900/60 border border-slate-800/60">
-            <span className="text-slate-400 block text-[10px]">Top Outflow</span>
-            <span className="font-mono font-bold text-white text-xs truncate block" title={insight.topCategory}>
-              {insight.topCategory && insight.topCategory !== 'None'
-                ? `${insight.topCategory} (₹${(insight.topCategoryAmount || 0).toLocaleString('en-IN')})`
-                : 'No Outflows'}
-            </span>
-          </div>
-        </div>
       </div>
     </div>
   );
