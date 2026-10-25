@@ -18,3 +18,9 @@ export const parseExpenseTextApi = async ({ userId, text, defaultDate, yearMonth
     yearMonth,
   });
 };
+
+export const getCategoryAiInsight = async ({ userId, categoryId, categoryName, yearMonth }) => {
+  return await apiClient.get('/ai/category-insight', {
+    params: { userId, categoryId, categoryName, yearMonth },
+  });
+};

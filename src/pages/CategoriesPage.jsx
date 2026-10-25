@@ -147,7 +147,10 @@ export const CategoriesPage = () => {
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Total Spent</span>
+                  <span className="text-slate-400 flex items-center gap-1 text-[11px]">
+                    <Sparkles size={11} className="text-indigo-400 animate-pulse" />
+                    <span>AI Audit</span>
+                  </span>
                   <div className="flex items-center gap-1">
                     <span className="font-bold text-white font-mono">
                       ₹{totalAmount.toLocaleString('en-IN')}
@@ -197,6 +200,7 @@ export const CategoriesPage = () => {
           badgeText="Category Expenses"
           badgeVariant="primary"
           expenses={activeSelectedCategory.expenses || []}
+          categoryData={activeSelectedCategory}
           onAddExpense={() => {
             const catName = activeSelectedCategory.name;
             setSelectedCategory(null);

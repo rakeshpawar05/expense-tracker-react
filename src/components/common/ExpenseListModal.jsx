@@ -2,6 +2,8 @@ import React from 'react';
 import { Modal } from './Modal';
 import { Button } from './Button';
 import { Badge } from './Badge';
+import { useAuth } from '../../context/AuthContext';
+import { AiCategoryAuditCard } from '../categories/AiCategoryAuditCard';
 import { Calendar, Plus, ExternalLink, Receipt, Trash2, Edit3 } from 'lucide-react';
 
 export const ExpenseListModal = ({
@@ -13,11 +15,13 @@ export const ExpenseListModal = ({
   badgeVariant = 'primary',
   expenses = [],
   totalAmount = null,
+  categoryData = null,
   onAddExpense = null,
   onNavigateToFeed = null,
   onEditExpense = null,
   onDeleteExpense = null,
 }) => {
+  const { userDetails, currentYearMonth } = useAuth();
   const calculatedTotal =
     totalAmount !== null
       ? totalAmount
@@ -49,6 +53,15 @@ export const ExpenseListModal = ({
             </p>
           </div>
         </div>
+
+        {/* Optional AI Category Audit */}
+        {categoryData && (
+          <AiCategoryAuditCard
+            category={categoryData}
+            yearMonth={currentYearMonth}
+            userId={userDetails?.userId}
+          />
+        )}
 
         {/* Expenses List */}
         <div className="max-h-[360px] overflow-y-auto pr-1 space-y-2">
